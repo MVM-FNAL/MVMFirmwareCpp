@@ -18,24 +18,44 @@
 
 #define TCAADDR 0x70
 
-
+/**
+ *  \brief	Initialize hardware peripheral in the system
+ * 
+ *  The function configure:
+ *		- Serial Port
+ *		- PWM
+ *		- PINS
+ *		- I2C
+ *		- Initialize the device list iic_devs
+ *		- Variables
+ * 
+ *	It also perform a I2C scan
+ * 
+ * \return 
+ */
 bool HW_V4::Init()
 {
+
+	//Init serial port 115200,8,n,1
 	Serial.begin(115200);
 
-
+	//Init PWM for PV1, 10KHz, 12 bit
 	ledcSetup(0, 10000, 12);
 	ledcAttachPin(VALVE_IN_PIN, 0);
 	ledcWrite(0, 0);
 
+	//Init pins: PV2, ALARM LED, BUZZER, RELE
 	digitalWrite(VALVE_OUT_PIN, LOW);
 	digitalWrite(ALARM_LED, LOW);
 	digitalWrite(BUZZER, LOW);
+	digitalWrite(ALARM_RELE, HIGH);
 
 	pinMode(VALVE_OUT_PIN, OUTPUT);
 	pinMode(ALARM_LED, OUTPUT);
 	pinMode(BUZZER, OUTPUT);
+	pinMode(ALARM_RELE, OUTPUT);
 
+	//Start I2C Master and Scan bus
 	Wire.begin();
 
 	for (int i = 0; i < 8; i++) {
@@ -44,9 +64,11 @@ bool HW_V4::Init()
 		__service_i2c_detect();
 	}
 
-	iic_devs[0].t_device = IIC_PS_0;
-	iic_devs[0].muxport = 0;
-	iic_devs[0].address = 0x76;
+	//Init list of devices on I2C bus
+
+	iic_devs[0].t_device = IIC_PS_0;			//NAME OF THE SENSORE
+	iic_devs[0].muxport = 0;					//Multiplexer PORT
+	iic_devs[0].address = 0x76;					//I2C ADDRESS
 
 	iic_devs[1].t_device = IIC_PS_1;
 	iic_devs[1].muxport = 0;
@@ -78,6 +100,10 @@ bool HW_V4::Init()
 	iic_devs[7].address = 0x00;
 
 
+	iic_devs[8].t_device = IIC_FLOW2;
+	iic_devs[8].muxport = 1;
+	iic_devs[8].address = 0x40;
+
 	batteryStatus_reading_LT = GetMillis();
 
 
@@ -85,18 +111,45 @@ bool HW_V4::Init()
 	pWall=true;
 	pIN=3;
 	BoardTemperature=25;
+	
 	//init supervisor watchdog
-	WriteSupervisor(0x00, 0);  //REMOVE COMMENT BEFORE RELEASE
+
+	/*
+	* During development we keep disabled supervisor watchdog
+	* otherwise it will trigger low level alarm every time 
+	* we reprogram ESP
+	* 
+	* 0 : DEVELOPMENT	- NO SUPERVISOR WATCHDOG
+	* 1 : PRODUCTION	- ENABLE SUPERVISOR WATCHDOG
+	*/
+
+	WriteSupervisor(0x00, 0);
 }
 
+/**
+ * \brief	Write buffer to I2C bus
+ * 
+ * This function also switch mux port in order to access to required device
+ * 
+ * \param device		name of the device listened in the iic_dev
+ * \param wbuffer		buffer to be written
+ * \param wlength		length of the buffer
+ * \param stop			add stop bit at end of transaction
+ * \return				true if success
+ */
 bool HW_V4::I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool stop)
 {
 	uint8_t address;
 	uint8_t result;
+	
+	//Search I2C device by name
 	t_i2cdev dev = GetIICDevice(device);
 	address = dev.address;
+
+	//Switch multiplexer
 	i2c_MuxSelect(dev.muxport);
 
+	//Arduino I2C Write operation
 	Wire.beginTransmission(address);
 	for (int i = 0;i < wlength; i++)
 		Wire.write(wbuffer[i]);
@@ -107,22 +160,42 @@ bool HW_V4::I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool st
 	else
 		return true;
 }
+
+/**
+ * \brief	Write buffer to I2C bus and read data
+ * 
+ * This function also switch mux port in order to access to required device
+ * 
+ * \param device		name of the device listened in the iic_dev
+ * \param wbuffer		buffer to be written
+ * \param wlength		length of the buffer to be written
+ * \param rbuffer		reading buffer (should be allocated externally)
+ * \param rlength		number of bytes to be read
+ * \param stop			add stop at end of transaction
+ * \return				true if success
+ */
 bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop)
 {
 	uint8_t address;
 	uint8_t count;
 	uint8_t result;
 
+	//Search I2C device by name
 	t_i2cdev dev = GetIICDevice(device);
 	address = dev.address;
+
+	//Switch multiplexer
 	i2c_MuxSelect(dev.muxport);
 
+	//Arduino I2C Write operation
 	Wire.beginTransmission(address);
 	for (int i = 0;i < wlength; i++)
 		Wire.write(wbuffer[i]);
 	result = Wire.endTransmission();
 	if (result != 0)
 		return false;
+
+	//Arduino I2C Read operation
 	count = Wire.requestFrom((uint16_t)address, (uint8_t)rlength, stop);
 	if (count < rlength)
 		return false;
@@ -135,6 +208,17 @@ bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t*
 	return true;
 }
 
+/**
+ * \brief	Read I2c data
+ * 
+ * This function also switch mux port in order to access to required device
+ * 
+ * \param device		name of the device listened in the iic_dev
+ * \param rbuffer		reading buffer (should be allocated externally)
+ * \param rlength		number of bytes to be read
+ * \param stop			add stop at end of transaction
+ * \return				true if success
+ */
 bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* rbuffer, int rlength, bool stop)
 {
 	uint8_t count;
@@ -156,6 +240,14 @@ bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* rbuffer, int rlength, bool sto
 
 	return true;
 }
+
+/**
+ * \brief	Control PWM device (PV1)
+ * 
+ * \param id		name of the device (enum hw_pwm)
+ * \param value		value from 0 to 100
+ * \return			always true
+ */
 bool HW_V4::PWMSet(hw_pwm id, float value)
 {
 
@@ -166,6 +258,11 @@ bool HW_V4::PWMSet(hw_pwm id, float value)
 	case PWM_PV1:
 		uint32_t v = (uint32_t)value * 4095.0 / 100.0;
 		ledcWrite(0, v);
+		/*
+		* The breethe signal is used by the supervisor to check
+		* whenever the driver for PV1 and PV2 is not working
+		* We need to commutate breethe synchronous with PV1
+		*/
 		if (v > 0)
 			digitalWrite(BREETHE, HIGH);
 		break;
@@ -175,12 +272,25 @@ bool HW_V4::PWMSet(hw_pwm id, float value)
 
 	return true;
 }
+
+/**
+ * \brief	Set a GPIO Status (IE Control PV6, Alarms, etc)
+ * 
+ * \param id		name of the GPIO (enum hw_gpio)
+ * \param value		true: logic level HI, low: logic level LOW
+ * \return			true if GPIO exists
+ */
 bool HW_V4::IOSet(hw_gpio id, bool value)
 {
 	switch (id)
 	{
 	case GPIO_PV2:
 		digitalWrite(VALVE_OUT_PIN, value ? HIGH : LOW);
+		/*
+		* The breethe signal is used by the supervisor to check
+		* whenever the driver for PV1 and PV2 is not working
+		* We need to commutate breethe synchronous with PV2
+		*/
 		if (value==LOW)
 			digitalWrite(BREETHE, LOW);
 		break;
@@ -199,6 +309,14 @@ bool HW_V4::IOSet(hw_gpio id, bool value)
 	}
 	return true;
 }
+
+/**
+ * \brief	Get GPIO Status
+ * 
+ * \param id		name of the GPIO (enum hw_gpio)
+ * \param value		OUTPUT true: logic level HI, low: logic level LOW
+ * \return			true if GPIO exists
+ */
 bool HW_V4::IOGet(hw_gpio id, bool* value)
 {
 	switch (id)
@@ -222,21 +340,61 @@ bool HW_V4::IOGet(hw_gpio id, bool* value)
 	return true;
 }
 
+/**
+ * \brief	Implements a blocking delay
+ * 
+ * \param ms		delay in ms
+ */
 void HW_V4::__delay_blocking_ms(uint32_t ms)
 {
 	delay(ms);
 }
 
+/**
+ * \brief	Print a message on console used for Debug
+ * 
+ * For ESP32 this is the same console of interface bus
+ * this is dangerous and in production DEBUG LEVEL should be set
+ * in order to be sure that no debug message is forwarded on
+ * this console otherwise GUI will crash
+ * 
+ * \param s		String to be print
+ */
 void HW_V4::PrintDebugConsole(String s)
 {
 	Serial.print(s);
 }
 
+
+/**
+ * \brief	Print a message on console used for Debug with a CR+LR at end
+ *
+ * For ESP32 this is the same console of interface bus
+ * this is dangerous and in production DEBUG LEVEL should be set
+ * in order to be sure that no debug message is forwarded on
+ * this console otherwise GUI will crash
+ *
+ * \param s		String to be print
+ */
 void HW_V4::PrintLineDebugConsole(String s)
 {
 	Serial.println(s);
 }
 
+/**
+ * \brief	Tick function must be called periodically 
+ * 
+ * The function performs in this driver polling task
+ * 
+ * Every seconds the function will contact the supervisor to do:
+ *	- read battery charge
+ *	- read power status (power line/battery)
+ *  - read input pressure
+ *	- read board temperature
+ *	- read supervisor alarm flags
+ *	- reset supervisor watchdog
+ * 
+ */
 void HW_V4::Tick()
 {
 	if (Get_dT_millis(batteryStatus_reading_LT)>1000)
@@ -260,6 +418,13 @@ void HW_V4::Tick()
 }
 
 
+/**
+ * \brief	API to read battery charge and power supply status
+ * 
+ * \param batteryPowered	true the system is battery powered
+ *							false the system is powered from 220v
+ * \param charge			% of battery charge
+ */
 void HW_V4::GetPowerStatus(bool* batteryPowered, float* charge)
 {
 	*batteryPowered = pWall ? false:true;
@@ -268,7 +433,12 @@ void HW_V4::GetPowerStatus(bool* batteryPowered, float* charge)
 }
 
 
-
+/**
+ * \brief	API to read if on the communication interfaces there are bytes
+ *			to be read
+ * 
+ * \return	true if bytes are available
+ */
 bool HW_V4::DataAvailableOnUART0()
 {
 	return Serial.available();

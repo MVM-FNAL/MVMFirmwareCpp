@@ -18,6 +18,7 @@
 
 // the setup function runs once when you press reset or power the board
 
+#include "driver_SFM3000.h"
 #include "MVMCore.h"
 #include <SimpleCLI.h>
 

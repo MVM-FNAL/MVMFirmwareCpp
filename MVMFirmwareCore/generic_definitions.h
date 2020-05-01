@@ -15,8 +15,19 @@
 
 #include <stdint.h>
 
+/**
+ * 
+ * !! Configure the hardware platform before compile !!
+ * 
+ */
+
 //#define HARDWARE_TARGET_PLATFORM_V3 1
 #define HARDWARE_TARGET_PLATFORM_V4 1
+
+//#define USE_SPIROMETER_SFM3019 1
+#define USE_SPIROMETER_SFM3000 1
+
+
 
 typedef enum { PWM_PV1 } hw_pwm;
 typedef enum { GPIO_PV2, GPIO_BUZZER, GPIO_LED, GPIO_RELEALLARM } hw_gpio;

@@ -23,6 +23,7 @@
 #include "DebugIface.h"
 #include "driver_5525DSO.h"
 #include "driver_SFM3019.h"
+#include "driver_SFM3000.h"
 #include "driver_ADS1115.h"
 #include "driver_VenturiFlowMeter.h"
 #include "driver_OxygenSensor.h"
@@ -43,7 +44,12 @@ class HAL
 		Sensor5525DSO drv_PLoop;
 		Sensor5525DSO drv_PPatient;
 		Sensor5525DSO drv_PVenturi;
+#ifdef USE_SPIROMETER_SFM3019
 		SensorSFM3019 drv_FlowIn;
+#endif
+#ifdef USE_SPIROMETER_SFM3000
+		SensorSFM3000 drv_FlowIn;
+#endif
 		ADC_ADS1115 drv_ADC0;
 		VenturiFlowMeter drv_FlowVenturi;
 		OxygenSensor drv_OxygenSensor;

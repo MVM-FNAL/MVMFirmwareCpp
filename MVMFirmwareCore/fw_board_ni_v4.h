@@ -11,7 +11,7 @@
 
 #include "hw.h"
 
-#define IIC_COUNT 8
+#define IIC_COUNT 9
 
 #define PLOOP_MODEL     GS_05
 #define PPATIENT_MODEL  DS_01
