@@ -89,6 +89,9 @@ class HAL
 		bool flush_pipe_mode = false;
 		float flush_pipe_open = 0;
 
+		float ploop_raw = 0;
+		float ppatient_row = 0;
+
 	public:
 		DebugIfaceClass dbg;
 		void Init();

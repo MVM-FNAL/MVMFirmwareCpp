@@ -66,6 +66,7 @@ typedef struct
 #define __ERROR_APNEA 22
 #define __ERROR_VENTURI_INVERTED 23
 #define __ERROR_VENTURI_NOT_CONNECTED 24
+#define __ERROR_ALARM_TEST 28
 #define __ERROR_ALARM_PI 29
 #define __ERROR_WDOG_PI 30
 #define __ERROR_SYSTEM_FALIURE 31

@@ -11,6 +11,9 @@
 
 #include "hw.h"
 
+/**
+ * Level of priority of debug print
+ */
 typedef enum {	DBG_NONE=0, 
 				DBG_CRITICAL = 1, 
 				DBG_ERROR = 2, 
@@ -21,6 +24,16 @@ typedef enum {	DBG_NONE=0,
 
 typedef enum {DBG_CODE, DBG_KERNEL} dbg_source;
 
+/**
+ * \brief   Debug class: this class print debug message
+ * 
+ * The class permit to specify for each message
+ *		- priority
+ *		- source	CODE/KERNEL
+ * 
+ * The class allows to set a minimum print level in order
+ * to reduce messages
+ */
 class DebugIfaceClass
 {
 private:

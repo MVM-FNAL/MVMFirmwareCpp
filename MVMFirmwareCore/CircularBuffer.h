@@ -4,6 +4,12 @@
 #ifndef _CIRCULARBUFFER_h
 #define _CIRCULARBUFFER_h
 
+/**
+ * \brief Delay buffer class
+ * 
+ * This class allows to create arbitrary delay
+ * Memory is dynamically allocated by Constructor 
+ */
 class CircularBuffer {
 
 private:

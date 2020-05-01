@@ -90,6 +90,12 @@
     <ClInclude Include="driver_OxygenSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="driver_SFM3000.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemStatus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HAL.cpp">
@@ -141,6 +147,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="driver_OxygenSensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver_SFM3000.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

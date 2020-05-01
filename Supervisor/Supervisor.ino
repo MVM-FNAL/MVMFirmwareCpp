@@ -258,7 +258,6 @@ void loop() {
     else
         ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_POWER);
 
-
     if (activity_alarm)
         ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_ACTIVITY);
     else

@@ -22,7 +22,7 @@ void HAL::Init()
 	dbg.Init(DBG_WARNING, &hwi);
 	_dc.hwi = &hwi;
 	_dc.dbg = &dbg;
-	
+
 	drv_FlowIn.Init(IIC_FLOW1, &_dc);
 
 	drv_PLoop.Init(IIC_PS_0, PLOOP_MODEL, OVS_1024, &_dc);
@@ -53,7 +53,7 @@ void HAL::Init()
 
 	Tloop = 0;
 	Ploop = 0;
-	Tpatient = 0; 
+	Tpatient = 0;
 	Ppatient = 0;
 	FlowIn = 0;
 	TFlowIn = 0;
@@ -70,7 +70,7 @@ void HAL::Init()
 
 	Pin = 0;
 	BoardTemperature = 0;
-	SupervisorAlarms=0;
+	SupervisorAlarms = 0;
 	i2c_scheduler = 0;
 	flush_pipe_mode = false;
 
@@ -85,7 +85,7 @@ void HAL::Callback(int x)
 void HAL::Tick()
 {
 	uint32_t ADC_LastResult;
-
+	
 	if (flush_pipe_mode == false)
 	{
 		PressureLoop.Tick();
@@ -97,16 +97,17 @@ void HAL::Tick()
 		SetOutputValve(true);
 	}
 
-	
-	
+
+
 	if (hwi.Get_dT_millis(cycle_LT) >= 3)
 	{
-		
 
-		if (drv_PLoop.asyncGetResult(&Ploop, &Tloop))
+
+		if (drv_PLoop.asyncGetResult(&ploop_raw, &Tloop))
 		{
-			if (fabs(Ploop) < 150)
+			if (fabs(ploop_raw) < 150)
 			{
+				Ploop = Ploop * 0.4 + ploop_raw * 0.6;
 				MEM_PLoop->PushData(Ploop);
 				PressureLoop.SetPressure(PRESSURE_VALVE, Ploop);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Ploop: " + String(Ploop));
@@ -114,10 +115,11 @@ void HAL::Tick()
 					callback_ploop();
 			}
 		}
-		else if (drv_PPatient.asyncGetResult(&Ppatient, &Tpatient))
+		else if (drv_PPatient.asyncGetResult(&ppatient_row, &Tpatient))
 		{
-			if (fabs(Ploop) < 150)
+			if (fabs(ppatient_row) < 150)
 			{
+				Ppatient = Ppatient * 0.1 + ppatient_row * 0.9;
 				MEM_PPatient->PushData(Ppatient);
 				PressureLoop.SetPressure(PRESSURE_PATIENT, Ppatient);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - PPatient: " + String(Ppatient));
@@ -274,13 +276,13 @@ void HAL::Tick()
 		}
 
 		cycle_LT = hwi.GetMillis();
-		
 
-		
-		
 
-		
-		
+
+
+
+
+
 	}
 }
 
@@ -316,7 +318,7 @@ float HAL::GetInputValve()
 }
 void HAL::SetOutputValve(bool value)
 {
-	_OutputValveValue = value ? 1:0;
+	_OutputValveValue = value ? 1 : 0;
 	hwi.IOSet(GPIO_PV2, !value);
 }
 float HAL::GetOutputValve()
@@ -385,7 +387,7 @@ int64_t HAL::Get_dT_millis(uint64_t ms)
 
 float HAL::ZeroPressureSensor(t_pressure_sensor ps)
 {
-	
+
 	switch (ps)
 	{
 	case PS_LOOP:
@@ -447,7 +449,7 @@ void HAL::ConfigureInputValvePID(float P, float I, float D, float P2, float I2, 
 
 void HAL::delay_ms(float ms)
 {
-	hwi.__delay_blocking_ms((uint32_t) ms);
+	hwi.__delay_blocking_ms((uint32_t)ms);
 }
 
 float HAL::GetOxygen()
@@ -495,27 +497,27 @@ void HAL::DOVenturiMeterScan()
 	if (flush_pipe_mode)
 	{
 		SetOutputValve(true);
-		for (int i = 30;i < 100;i++)
+		for (int i = 30; i < 100; i++)
 		{
 			hwi.PWMSet(PWM_PV1, i);
 			hwi.__delay_blocking_ms(500);
 			fref_m = 0;
 			pmeas_m = 0;
-			for (int j = 0;j < 30;j++)
+			for (int j = 0; j < 30; j++)
 			{
 				drv_FlowIn.doMeasure(&fref, &tref);
 				drv_PVenturi.doMeasure(&pmeas, &tmeas);
 				fref_m += fref;
 				pmeas_m += pmeas;
 			}
-			
+
 			fref_m = fref_m / 30;
 			pmeas_m = pmeas_m / 30;
 
-			hwi.WriteUART0(String(i) + "," + String(fref_m,5) + "," + String(pmeas_m,5));
+			hwi.WriteUART0(String(i) + "," + String(fref_m, 5) + "," + String(pmeas_m, 5));
 		}
-		
-		
+
+
 	}
 }
 
@@ -528,13 +530,13 @@ void HAL::DOValveScan()
 	if (flush_pipe_mode)
 	{
 		SetOutputValve(true);
-		for (int i = 0;i < 100;i++)
+		for (int i = 0; i < 100; i++)
 		{
 			hwi.PWMSet(PWM_PV1, i);
 			hwi.__delay_blocking_ms(250);
 			fref_m = 0;
 			pmeas_m = 0;
-			for (int j = 0;j < 30;j++)
+			for (int j = 0; j < 30; j++)
 			{
 				drv_FlowIn.doMeasure(&fref, &tref);
 				fref_m += fref;
@@ -546,13 +548,13 @@ void HAL::DOValveScan()
 			hwi.WriteUART0(String(i) + "," + String(fref_m, 5));
 		}
 
-		for (int i = 100;i > 0;i--)
+		for (int i = 100; i > 0; i--)
 		{
 			hwi.PWMSet(PWM_PV1, i);
 			hwi.__delay_blocking_ms(250);
 			fref_m = 0;
 			pmeas_m = 0;
-			for (int j = 0;j < 30;j++)
+			for (int j = 0; j < 30; j++)
 			{
 				drv_FlowIn.doMeasure(&fref, &tref);
 				fref_m += fref;
@@ -584,7 +586,7 @@ void HAL::LEAKAGETest()
 		float pPmeas, tPmeas;
 		drv_PLoop.doMeasure(&pLmeas, &tLmeas);
 		drv_PPatient.doMeasure(&pPmeas, &tPmeas);
-		hwi.WriteUART0(String(i*50/12) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
+		hwi.WriteUART0(String(i * 50 / 12) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
 		hwi.__delay_blocking_ms(250);
 	}
 	SetInputValve(0);
@@ -612,4 +614,3 @@ void HAL::LEAKAGETest()
 // Nuclear Instruments 2020 - All rights reserved
 // Any commercial use of this code is forbidden
 // Contact info@nuclearinstruments.eu
-

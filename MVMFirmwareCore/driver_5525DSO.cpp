@@ -5,9 +5,25 @@
 #include "driver_5525DSO.h"
 
 
-
+/**
+ * \brief   Init pressure sensor TE 5525DSO
+ * 
+ * The driver initialize the sensor and download the calibration table
+ * via I2C.
+ * 
+ * Calibration table is stored in the driver
+ * 
+ * The driver print the calibration table
+ * 
+ * \param device            Name of the I2C device
+ * \param model             Model of the sensor
+ * \param ps_resolution     Resolution
+ * \param handle            Handle to the DriverContext class
+ * \return                  true if sensor is initialized correctly
+ */
 bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution ps_resolution, void* handle)
 {
+    //Copy device contex and extract pointer to DebugClass and Hardware Class
     DriverContext* dc;
     dc = (DriverContext*)handle;
     hwi = (HW*)dc->hwi;
@@ -23,9 +39,11 @@ bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution
     uint8_t rbuffer[6];
     dbg->DbgPrint(DBG_KERNEL, DBG_INFO, "Starting 5525DSO Initialization... ");
 
+    //Reset Senspr
     Reset_5525DSO();
     hwi->__delay_blocking_ms(100);
 
+    //Read Calibration Table
     for (int i = 0; i < 6; i++) {
         wbuffer[0] = 0xA0 + ((i + 1) << 1);
         bres = hwi->I2CRead(i2c_device, wbuffer, 1, rbuffer, 2, true);
@@ -34,6 +52,7 @@ bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution
     }
     sensorCT.ZERO = 0;
 
+    //Select coefficient in function of model
     switch (sensor_model) {
         case DS_01:
             sensorCT.Q[0] = 15;
@@ -61,13 +80,11 @@ bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution
     dbg->DbgPrint(DBG_KERNEL, DBG_INFO, "TREF:             " + String(sensorCT.C[4]));
     dbg->DbgPrint(DBG_KERNEL, DBG_INFO, "TEMPSENS:         " + String(sensorCT.C[5]));
 
-    uint32_t __chache_P;
-    uint32_t __chache_T;
-    int __TDiv;
+    //Initialize default parameters
+    //We need a cache for P and T because we
+    //read T only few time in order to reduce
+    //bus access
     __last_is_T=false;
- 
-
-   
     __chache_P=0;
     __chache_T=0;
     __TDiv=0;
@@ -75,15 +92,18 @@ bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution
 
     startup_counter = 1;
     data_valid = false;
-
-    /*for (int i = 0; i < PBUFFER_SIZE;i++)
-    {
-        PBuffer[i] = 0;
-    }*/
     _initialized = true;
     __last_millis = hwi->GetMillis();
     return true;
 }
+
+/**
+ * \brief   Perform a full measure in blocking mode
+ * 
+ * \param P     measured P in mbar
+ * \param T     measured T in °C
+ * \return      true if success
+ */
 bool Sensor5525DSO::doMeasure(float* P, float* T)
 {
     bool bres = true;
@@ -127,6 +147,7 @@ bool Sensor5525DSO::doMeasure(float* P, float* T)
 
     temperature_raw = (rbuffer[0] << 16) + (rbuffer[1] << 8) + rbuffer[2];
 
+    //Convert raw in P,T
     CalibrateDate_5525DSO(temperature_raw, pressure_raw, T, P);
 
     dbg->DbgPrint(DBG_KERNEL, DBG_INFO, "T:  " + String(*T) + "   P:  " + String(*P));
@@ -135,16 +156,27 @@ bool Sensor5525DSO::doMeasure(float* P, float* T)
     return true;
 }
 
+/**
+ * \brief   Start an asynchronous measure process (NON BLOKING)
+ * 
+ * This function start the measure process for P/T (alternating
+ * in internally managed) and start measure timer in order to 
+ * correctly delay the end of measure
+ * 
+ * \return  true if success, false if measure is in progress
+ */
 bool Sensor5525DSO::asyncMeasure()
 {
     bool bres = true;
     uint8_t wbuffer[6];
 
     if (!_initialized) return false;
-
+    
+    //Check if there is a measure pending, if yes return
     if (__pending_meas)
         return false;
 
+    //Every 50 cycles read temperature 
     if (__TDiv <= 0)
     {
         __TDiv = 50;
@@ -165,6 +197,17 @@ bool Sensor5525DSO::asyncMeasure()
     __pending_meas = true;
     return true;
 }
+
+/**
+ * \brief   Get result from an NON BLOCKING measure process
+ * 
+ * This function must be polled after asyncMeasure is called
+ * When conversion process ends the function return true
+ * 
+ * \param P     OUT pressure
+ * \param T     OUT T
+ * \return      true readout success, false measure not available
+ */
 bool Sensor5525DSO::asyncGetResult(float* P, float* T)
 {
     bool bres = true;
@@ -175,14 +218,17 @@ bool Sensor5525DSO::asyncGetResult(float* P, float* T)
 
     if (!_initialized) return false;
 
+    //Check if there is a measure pending, if no return
     if (!__pending_meas)
         return false;
 
+    //Check if conversion time is expired
     if (hwi->Get_dT_millis(__last_millis) < GetResolutionDelay())
         return false;
 
     __pending_meas = false;
 
+    //Start readout process
     wbuffer[0] = 0x00;
     bres = hwi->I2CWrite(i2c_device, wbuffer, 1, true);
     if (!bres) return false;
@@ -190,6 +236,8 @@ bool Sensor5525DSO::asyncGetResult(float* P, float* T)
     bres = hwi->I2CRead(i2c_device, rbuffer, 3, true);
     if (!bres) return false;
 
+    //Get P or T and use opposite (not read value) from cache
+    //Then convert raw to P,T
     if (__last_is_T)
     {
         temperature_raw = (rbuffer[0] << 16) + (rbuffer[1] << 8) + rbuffer[2];
@@ -203,7 +251,7 @@ bool Sensor5525DSO::asyncGetResult(float* P, float* T)
         CalibrateDate_5525DSO(__chache_T, __chache_P, T, P);
     }
 
-    
+    //Discard data on startup
     if (startup_counter > 0)
     {
         startup_counter--;
@@ -215,6 +263,15 @@ bool Sensor5525DSO::asyncGetResult(float* P, float* T)
     
     return data_valid;
 }
+
+/**
+ * \brief   Convert row measure in P/V
+ * 
+ * \param raw_temp      raw temperature measured
+ * \param raw_pressure  raw pressure measured
+ * \param T             OUT Temperature
+ * \param P             OUT Pressure
+ */
 void Sensor5525DSO::CalibrateDate_5525DSO(int32_t raw_temp, int32_t raw_pressure, float* T, float* P)
 {
     float PINSIDE, PINSIDE_ZERO;
@@ -251,9 +308,15 @@ void Sensor5525DSO::CalibrateDate_5525DSO(int32_t raw_temp, int32_t raw_pressure
    //     Serial.println("DBG; " + String(PINSIDE) + " " + String(sensorCT.ZERO) + " " + String(PINSIDE_ZERO));
     *P = PINSIDE_ZERO;
 }
+
+/**
+ * \brief   Obtain the conversion code for T for specified resolution
+ * 
+ * \return  Conversion Code
+ */
 uint8_t Sensor5525DSO::GetResolutionByteCodeTemp()
 {
-    switch (sensor_model)
+    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 0x50;
@@ -270,9 +333,14 @@ uint8_t Sensor5525DSO::GetResolutionByteCodeTemp()
     }
 }
 
+/**
+ * \brief   Obtain the conversion code for P for specified resolution
+ *
+ * \return  Conversion Code
+ */
 uint8_t Sensor5525DSO::GetResolutionByteCodePressure()
 {
-    switch (sensor_model)
+    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 0x40;
@@ -290,9 +358,14 @@ uint8_t Sensor5525DSO::GetResolutionByteCodePressure()
 }
 
 
+/**
+ * \brief   Obtain the conversion time for specified resolution
+ *
+ * \return  Conversion Code
+ */
 uint32_t Sensor5525DSO::GetResolutionDelay()
 {
-    switch (sensor_model)
+    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 1;
@@ -309,6 +382,11 @@ uint32_t Sensor5525DSO::GetResolutionDelay()
     }
 }
 
+/**
+ * \brief   Reset the sensor
+ * 
+ * \return  true if sensor is present
+ */
 bool Sensor5525DSO::Reset_5525DSO()
 {
     bool bres = true;
@@ -323,21 +401,24 @@ bool Sensor5525DSO::Reset_5525DSO()
     return true;
 }
 
-/*
-void Sensor5525DSO::UpdateBuffer(float P)
-{
-    for (int i = 0;i < PBUFFER_SIZE - 1;i++)
-    {
-        PBuffer[PBUFFER_SIZE - i] = PBuffer[PBUFFER_SIZE - i - 1];
-    }
-    PBuffer[0] = P;
-}
-*/
+/**
+ * \brief   Calibrate sensor zero with a specified value
+ * 
+ * \param value     Value used to zero sensor
+ */
 void Sensor5525DSO::setZero(float value)
 {
     sensorCT.ZERO = value;
 }
 
+
+/**
+ * \brief   Calculate sensor zero
+ * 
+ * The function average 50 measure to extract the 0
+ * 
+ * \return 
+ */
 float Sensor5525DSO::doZero()
 {
     float T, P;
@@ -365,11 +446,22 @@ float Sensor5525DSO::doZero()
     return value;
 }
 
+
+/**
+ * \brief   Incremental 0 correction for Venturi cycle to cycle adjust
+ * 
+ * \param value     Incremental correction
+ */
 void Sensor5525DSO::correctZero(float value)
 {
     sensorCT.ZERO += value;
 }
 
+/**
+ * \brief   Return correction delay
+ * 
+ * \return  Delay in ms
+ */
 float Sensor5525DSO::GetConversionDelay()
 {
     return (float) GetResolutionDelay();

@@ -77,7 +77,11 @@ void AlarmClass::Tick()
 }
 
 /**
- * \brief   Leds and relays 
+ * \brief   Leds and relays managment 
+ * 
+ *  Led RED blink 4 Hz
+ * 
+ *  Rele for high priority alarms 
  * 
  */
 void AlarmClass::AlarmActions()
@@ -99,6 +103,12 @@ void AlarmClass::AlarmActions()
         _HAL->SetAlarmRele(false);
     }
 }
+
+/**
+ * \brief   Execute the High Priority melody
+ * 
+ * The state machine execute step by step the ISO MELODY
+ */
 void AlarmClass::Sound()
 {
 	if (AlarmSound)
@@ -275,12 +285,24 @@ void AlarmClass::Sound()
     }
 }
 
+/**
+ * \brief   Over Pressure action: trigger alarm and open exhaust valve
+ * 
+ */
 void AlarmClass::Action_OverPressureSecurity()
 {
 	_sys_c->in_over_pressure_emergency = true;
 	_HAL->SetOutputValve(true);
 }
 
+/**
+ * \brief check for alarms that are not triggered by events
+ * 
+ *      - Battery under 20%
+ *      - Pressure @ Patient > 50mbar
+ *      - Pressure @ Loop   > 65mbar
+ *      - GUI watchdog
+ */
 void AlarmClass::CheckStaticAlarms()
 {
     if ((_sys_c->currentBatteryCharge < 20) && (_sys_c->batteryPowered))
@@ -309,7 +331,31 @@ void AlarmClass::CheckStaticAlarms()
     }
 }
 
+/**
+ * \brief   Generate a test alarm
+ * 
+ * \param in_alarm  true to generate alarm
+ */
+void AlarmClass::SetAlarmTest(bool in_alarm)
+{
+    if (in_alarm)
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(__ERROR_ALARM_TEST);
+    else
+        ALARM_FLAG = 0x00000000;
 
+    ALARM_FLAG_SNOOZE = 0;
+}
+
+
+/**
+ * \brief   Event handler for alarm triggering
+ * 
+ * This function convert the alarm code from firmware enum t_ALARM
+ * in a generic alarm code shared with GUI. See generic_definitions.h
+ * for alarms coding.
+ * 
+ * \param Alarm     Alarm code from t_ALARM enum
+ */
 void AlarmClass::TriggerAlarm(t_ALARM Alarm)
 {
     switch (Alarm) {
@@ -425,6 +471,11 @@ void AlarmClass::TriggerAlarm(t_ALARM Alarm)
     
 }
 
+/**
+ * \brief   Trigger alarm from GUI
+ * 
+ * \param in_alarm     true to trigger alarm, false to snooze alarm
+ */
 void AlarmClass::SetAlarmGUI(bool in_alarm)
 {
     if (in_alarm)
@@ -438,6 +489,9 @@ void AlarmClass::SetAlarmGUI(bool in_alarm)
 
 }
 
+/**
+ * \brief   Reset and snooze all alarm
+ */
 void AlarmClass::ResetAlarm()
 {
     ALARM_FLAG_SNOOZE = ALARM_FLAG ;
@@ -445,12 +499,20 @@ void AlarmClass::ResetAlarm()
     ALARM_FLAG = 0;
 }
 
+/**
+ * \brief   Event triggered on start of breath cycle
+ * 
+ */
 void AlarmClass::TransitionNewCycleEvent()
 {
     P0Loop = _sys_c->pLoop;
     P0Patient = _sys_c->pPatient;
 }
 
+/**
+ * \brief   Event triggered on start of exhale phase
+ * 
+ */
 void AlarmClass::TransitionInhaleExhale_Event()
 {
     float dPPatient, dPLoop;
@@ -482,22 +544,41 @@ void AlarmClass::TransitionInhaleExhale_Event()
 
 }
 
+/**
+ * \brief   Event triggered on end of breath cycle
+ * 
+ */
 void AlarmClass::TransitionEndCycleEvent()
 {
 
 }
 
+/**
+ * \brief   Reset GUI watchdog
+ * 
+ */
 void AlarmClass::ResetWatchDog()
 {
     wdog_timer = _HAL->GetMillis();
 }
+
+/**
+ * \brief   Enable GUI watchdog. Watchdog expire in 6s
+ * 
+ * \param enable    true: enable watchdog
+ */
 void AlarmClass::EnableWatchDog(bool enable)
 {
     wdog_timer = _HAL->GetMillis();
     wdog_enable = enable;
 }
 
-
+/**
+ * \brief   Service function to generate alarm MASKs
+ * 
+ * \param alarm_code    alarm code
+ * \return              alarm mask
+ */
 uint32_t AlarmClass::GenerateFlag(int alarm_code)
 {
     return (1 << alarm_code);

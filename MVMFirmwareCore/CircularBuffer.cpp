@@ -5,6 +5,13 @@
 #include "CircularBuffer.h"
 #include <string.h>
 
+/**
+ * \brief	Constructor that allocate memory for delay buffer
+ * 
+ * Memory is dynamically allocated
+ * 
+ * \param size	Size in word of buffer
+ */
 CircularBuffer::CircularBuffer(int32_t size)
 {
 	_size = size;
@@ -14,11 +21,21 @@ CircularBuffer::CircularBuffer(int32_t size)
 		buffer[i] = 0;
 }
 
+/**
+ * \brief	Destructor of the class. Release buffer memory
+ * 
+ */
 CircularBuffer::~CircularBuffer()
 {
 	if (buffer != NULL)
 		delete buffer;
 }
+
+/**
+ * \brief	Push new data in the buffer
+ * 
+ * \param data		New sample
+ */
 void CircularBuffer::PushData(float data)
 {
 	if (buffer == NULL) false;
@@ -28,6 +45,15 @@ void CircularBuffer::PushData(float data)
 	}
 	buffer[0] = data;
 }
+
+/**
+ * \brief   Pop data from buffer
+ * 
+ * Data are not destroyed
+ * 
+ * \param delay     Delay in samples from head of the buffer
+ * \return          data
+ */
 float CircularBuffer::GetData(int32_t delay)
 {
 	if (delay >= _size)

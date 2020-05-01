@@ -21,6 +21,24 @@ typedef struct
 typedef enum { DS_01, GS_05 } t_ps_sensor;
 typedef enum { OVS_256, OVS_512, OVS_1024, OVS_2048, OVS_4096 } t_ps_resolution;
 
+/**
+ * \brief	The class provide support for TE 5525DSO Pressure sensor
+ * 
+ * The class support both blocking and non blocking reading
+ * 
+ * Blocking Reading:     The driver start conversion on the sensor and wait
+    *					 for the result. It require the full conversion time
+ * 
+ * Non Blocking reading: The readout process is spitted in two part
+ *						  1) the measure is started on the device by asyncMeasure function
+ *						  2) the result is get from the device by asyncGetResult function
+ *						 there is no delay and dead time
+ * 
+ * The class download calibration from the device to convert raw data to P/T
+ * automatically
+ * 
+ *						 
+ */
 	class Sensor5525DSO
 	{
 		public:

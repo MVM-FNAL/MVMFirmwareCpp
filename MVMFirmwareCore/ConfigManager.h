@@ -12,6 +12,18 @@
 #include "SystemStatus.h"
 #include "Alarms.h"
 
+/**
+ * \brief	Configuration class. Store config parameters and manage communicate interface
+ * 
+ * The class store all configuration and allows the interoperability with the GUI
+ * or control scripts
+ * It does not directly manage the communication. It just export the SetParameter and 
+ * GetParameter function
+ * 
+ * The system configuration is stored in the core_config t_config struct.
+ * 
+ * The class initialize configuration with default parameters
+ */
 class ConfigManagerClass 
 {
  protected:

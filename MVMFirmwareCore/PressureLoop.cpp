@@ -22,7 +22,7 @@ void PressureLoopClass::Init(float fast_ms, int32_t LoopRatio, void* handle)
     _PID_I2 = 12;
     _PID_D2 = 0;
     _pid_limit = 0.55;
-    _filter_fast = 0.9;// 0.9;
+    _filter_fast = 0.95;// 0.9;
     _filter_slow = 0.7;
     _ValvePWM = 0;
 
@@ -49,7 +49,7 @@ void PressureLoopClass::PID_SLOW_LOOP()
 
     float Pmeas = 0;
 
-    float dT = ((float)hwi->Get_dT_millis(last_slow_ms))/1000.0;
+    float dT = ((float)hwi->Get_dT_millis(last_slow_ms)) / 1000.0;
     last_slow_ms = hwi->GetMillis();
 
     Pmeas = _pressure_patient;
@@ -61,11 +61,11 @@ void PressureLoopClass::PID_SLOW_LOOP()
         pid_outb = 0;
     }
     else {
-        Pset2 = (Pset2 * _filter_slow) + ((1- _filter_slow) * (_Pset));
+        Pset2 = (Pset2 * _filter_slow) + ((1 - _filter_slow) * (_Pset));
 
         pid_error = Pset2 - Pmeas;
         pid_integral += pid_error;
-       
+
         if (pid_integral < 0)
             pid_integral = 0;
 
@@ -88,15 +88,15 @@ void PressureLoopClass::PID_SLOW_LOOP()
 float PressureLoopClass::ValveLUT(float pid_value)
 {
     float tret = 0;
-   // if (pid_value > pid_fast_last)
+    // if (pid_value > pid_fast_last)
     {
         tret = (0.00126 * pid_value * pid_value) + (0.42098 * pid_value) + 37.32803;
     }
-   // else
-   // {
-   //     tret = (0.00309 * pid_value * pid_value) + (0.2777 * pid_value) + 34.93373;
-   // }
-    
+    // else
+    // {
+    //     tret = (0.00309 * pid_value * pid_value) + (0.2777 * pid_value) + 34.93373;
+    // }
+
     pid_fast_last = pid_value;
     return tret;
 }
@@ -108,12 +108,17 @@ void PressureLoopClass::PID_FAST_LOOP()
     static float pid_integral = 0;
     static float pid_prec = 0;
     static float pid_out = 0;
-    
+
+
+    static float fw_pid = 0;
+
+
+
 
     float integral_before = 0;
-   
+
     float PID_P = _PID_P;
-    float PID_I = _PID_I; 
+    float PID_I = _PID_I;
     float PID_D = _PID_D;
     static float Pset2 = 0;
 
@@ -121,7 +126,7 @@ void PressureLoopClass::PID_FAST_LOOP()
 
     float Pmeas = 0;
 
-    float dT = ((float)hwi->Get_dT_millis(last_fast_ms))/1000.0;
+    float dT = ((float)hwi->Get_dT_millis(last_fast_ms)) / 1000.0;
     last_fast_ms = hwi->GetMillis();
 
     fast_pid_set = _Pset;
@@ -129,12 +134,14 @@ void PressureLoopClass::PID_FAST_LOOP()
 
     if (_Pset == 0) {
         Pset2 = Pmeas;
-        pid_integral = 0;
+        //pid_integral = 0;
         pid_prec = 0;
-        _ValvePWM = ValveLUT(2);
+        _ValvePWM = ValveLUT(1);
+        pid_outb = 0;
     }
     else {
         Pset2 = (Pset2 * _filter_fast) + ((1 - _filter_fast) * fast_pid_set);
+
         //Pset2 = fast_pid_set;
 
         pid_error = Pset2 - Pmeas;
@@ -149,9 +156,9 @@ void PressureLoopClass::PID_FAST_LOOP()
 
         pid_out = PID_P * pid_error + PID_I * pid_integral + PID_D * (pid_error - pid_prec);
 
-        if (pid_out <0)
-            pid_integral = integral_before ;
-        //pid_outb = pid_outb * 0.8 + pid_out*0.2;
+        if (pid_out < 0)
+            pid_integral = integral_before;
+        pid_outb = pid_outb * 0.5 + pid_out * 0.5;
         pid_outb = pid_out;
         if (pid_outb < 0)
             pid_outb = 0;
@@ -159,18 +166,20 @@ void PressureLoopClass::PID_FAST_LOOP()
         if (pid_outb > 4095.0)
             pid_outb = 4095.0;
 
+
+
         pid_prec = pid_error;
 
         if (_Pset == 0)
-            _ValvePWM = ValveLUT(2);
+            _ValvePWM = ValveLUT(1);
         else
-            _ValvePWM = ValveLUT(pid_outb*100.0/4095);
+            _ValvePWM = ValveLUT(pid_outb * 100.0 / 4095);
 
-        
+
 
     }
 
-   
+
 }
 
 void PressureLoopClass::SetTargetPressure(float pressure)
@@ -232,7 +241,7 @@ void PressureLoopClass::ConfigurePidFast(float P, float I, float D)
     _PID_I = I;
     _PID_D = D;
 }
-void PressureLoopClass::GetPidSlow(float* P, float* I, float* D,  float* pid_limiter)
+void PressureLoopClass::GetPidSlow(float* P, float* I, float* D, float* pid_limiter)
 {
     *P = _PID_P2;
     *I = _PID_I2;

@@ -125,6 +125,7 @@
     <ClInclude Include="driver_5525DSO.h" />
     <ClInclude Include="driver_ADS1115.h" />
     <ClInclude Include="driver_OxygenSensor.h" />
+    <ClInclude Include="driver_SFM3000.h" />
     <ClInclude Include="driver_SFM3019.h" />
     <ClInclude Include="driver_VenturiFlowMeter.h" />
     <ClInclude Include="fw_board_ni_v4.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="MVMCore.h" />
     <ClInclude Include="MVM_StateMachine.h" />
     <ClInclude Include="PressureLoop.h" />
+    <ClInclude Include="SystemStatus.h" />
     <ClInclude Include="TidalVolume.h" />
     <ClInclude Include="UtilsFn.h" />
     <ClInclude Include="__vm\.MVMFirmwareCore.vsarduino.h" />
@@ -148,6 +150,7 @@
     <ClCompile Include="driver_5525DSO.cpp" />
     <ClCompile Include="driver_ADS1115.cpp" />
     <ClCompile Include="driver_OxygenSensor.cpp" />
+    <ClCompile Include="driver_SFM3000.cpp" />
     <ClCompile Include="driver_SFM3019.cpp" />
     <ClCompile Include="driver_VenturiFlowMeter.cpp" />
     <ClCompile Include="fw_board_ni_v4.cpp" />

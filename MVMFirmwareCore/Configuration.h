@@ -1,11 +1,17 @@
 #pragma once
 
 
+/**
+ * Run mode
+ */
 typedef enum {
     M_BREATH_FORCED,
     M_BREATH_ASSISTED
 } t_assist_mode;
 
+/**
+ * Configuration structure
+ */
 typedef struct
 {
     bool run;

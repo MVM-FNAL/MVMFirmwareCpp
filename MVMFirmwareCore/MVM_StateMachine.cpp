@@ -69,10 +69,10 @@ void MVM_StateMachine::SMExecute()
                 //Compensate pressure flat top error changing set point
                 if (core_config->enable_pressure_compensation)
                 {
-                    if ((cycle_pressure_target - sys_c->currentP_Peak) > 0)
+                    if ((cycle_pressure_target - sys_c->currentP_Peak) > 1)
                         sys_c->pressure_compensation_coeff++;
                     else
-                        if ((cycle_pressure_target - sys_c->currentP_Peak) < 0)
+                        if ((cycle_pressure_target - sys_c->currentP_Peak) < 1)
                            sys_c->pressure_compensation_coeff--;
 
                     sys_c->pressure_compensation_coeff > 15 ? 15 : sys_c->pressure_compensation_coeff;
@@ -165,10 +165,10 @@ void MVM_StateMachine::SMExecute()
 						//Compensate pressure flat top error changing set point
 						if (core_config->enable_pressure_compensation)
 						{
-							if ((cycle_pressure_target - sys_c->currentP_Peak) > 0)
+							if ((cycle_pressure_target - sys_c->currentP_Peak) > 1)
 								sys_c->pressure_compensation_coeff++;
 							else
-								if ((cycle_pressure_target - sys_c->currentP_Peak) < 0)
+								if ((cycle_pressure_target - sys_c->currentP_Peak) < 1)
 									sys_c->pressure_compensation_coeff--;
 
 							sys_c->pressure_compensation_coeff > 15 ? 15 : sys_c->pressure_compensation_coeff;

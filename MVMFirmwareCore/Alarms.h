@@ -12,7 +12,9 @@
 #include "SystemStatus.h"
 #include "generic_definitions.h"
 
-
+/**
+ * Class that manage the ALARMS and WARNINGS
+ */
 class AlarmClass
 {
 private:
@@ -57,6 +59,7 @@ public:
     void ResetWatchDog();
     void EnableWatchDog(bool enable);
     void SetAlarmGUI(bool in_alarm);
+    void SetAlarmTest(bool in_alarm);
 };
 
 #endif
