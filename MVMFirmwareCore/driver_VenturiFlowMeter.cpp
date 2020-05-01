@@ -28,6 +28,14 @@ float VenturiFlowMeter::GetFlow(float pressure, float temperature)
 		VenturiFlux = (_LowPass * VenturiFlux) + ((1 - _LowPass) * vf);
 		return VenturiFlux;
 	}
+
+	if (_model == VENTURI_CUSTOM)
+	{
+		float vf = VenturiCustom_Convert(pressure);
+		VenturiFlux = (_LowPass * VenturiFlux) + ((1 - _LowPass) * vf);
+		return VenturiFlux;
+	}
+
 }
 float VenturiFlowMeter::SpiroquantH_R122P04_Convert(float pressure)
 {
@@ -58,6 +66,22 @@ float VenturiFlowMeter::ALPE_1551_Convert(float pressure)
 	Integral += vf;
 	return vf;
 }
+float VenturiFlowMeter::VenturiCustom_Convert(float pressure)
+{
+	float dp = pressure;
+	float sign = 1;
+	if (dp < 0) {
+		sign = -1;
+		dp = dp * -1;
+	};
+	float vf = CustomCoefficients[4] * (dp * dp * dp * dp) + CustomCoefficients[3] * (dp * dp * dp)
+		+ CustomCoefficients[2] * (dp * dp) + CustomCoefficients[1] * dp + CustomCoefficients[0];
+	vf = vf * sign;
+
+
+	Integral += vf;
+	return vf;
+}
 
 bool VenturiFlowMeter::setLowpass(float lowpass)
 {
@@ -74,11 +98,22 @@ float VenturiFlowMeter::GetIntegral()
 {
 	return Integral;
 }
+
 void VenturiFlowMeter::ResetIntegral()
 {
 	Integral = 0;
 }
 
+bool VenturiFlowMeter::VenturiSetCoefficient(int index, float value)
+{
+	if ((index >= 0) && (index < 5))
+	{
+		CustomCoefficients[index] = value;
+		return true;
+	}
+	else
+		return false;
+}
 
 //                  #     # ### 
 //                  ##    #  #  

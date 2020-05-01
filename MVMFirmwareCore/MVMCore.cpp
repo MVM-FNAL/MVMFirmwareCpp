@@ -209,6 +209,16 @@ void MVMCore::NewCycle_Event()
 	sys_s.pres_peak_lp = 0;
 	sys_s.pres_peak = 0;
 	sys_s.fluxpeak = 0;
+
+	if ((TidalVolumeExt.LastVenturiVolume < -0.05) && (TidalVolumeExt.LastSensirionVolume > 0.05))
+	{
+		Alarms.TriggerAlarm(ALARM_VENTURI_INVERTED);
+	}
+
+	if ((TidalVolumeExt.LastVenturiVolume < 0.03) && (TidalVolumeExt.LastSensirionVolume > 0.15))
+	{
+		Alarms.TriggerAlarm(ALARM_NO_VENTURI_CONNECTED);
+	}
 	
 	Alarms.TransitionNewCycleEvent();
 }
@@ -300,6 +310,12 @@ void MVMCore::DOValveScan()
 }
 
 
+bool MVMCore::VenturiSetCoefficient(int index, float value)
+{
+	return MVM_HAL.VenturiSetCoefficient(index, value);
+}
+
+
 void MVMCore::MVMDebugPrintLogger()
 {
 	float pid_slow, pid_fast;
@@ -310,7 +326,7 @@ void MVMCore::MVMDebugPrintLogger()
 	OutputValveSetPoint = MVM_HAL.GetOutputValve() * 100;
 
 	String ts = CMC.core_config.__ADDTimeStamp ? String((uint32_t)MVM_HAL.GetMillis()) + "," : "";
-	/*
+	
 	MVM_HAL.WriteUART0(ts+ 
 		String(sys_s.FlowIn) + "," +
 		String(sys_s.pLoop) + "," +
@@ -323,14 +339,14 @@ void MVMCore::MVMDebugPrintLogger()
 		String(sys_s.TidalVolume) + "," +
 		String(sys_s.PPatient_delta2 * 10)
 		);
-	*/
+	
 
-	MVM_HAL.WriteUART0(
+	/*MVM_HAL.WriteUART0(
 		String(sys_s.pLoop) + "," +
 		String(sys_s.pPatient) + "," +
 		String(pid_fast) + "," +
 		String(pid_slow) 
-	);
+	);*/
 	
 }
 

@@ -31,6 +31,8 @@ public:
 	float currentTvEsp;
 	float currentTvIsnp;
 	float currentFluxPeak;
+	float LastSensirionVolume;
+	float LastVenturiVolume;
 	void Init(HAL* hal);
 	void PushDataSens(float flux_sens);
 	void PushDataVenturi(float flux_venturi);

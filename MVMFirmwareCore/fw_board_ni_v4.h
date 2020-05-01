@@ -17,6 +17,9 @@
 #define PPATIENT_MODEL  DS_01
 #define PVENTURI        DS_01
 
+/**
+ * \brief Driver for the Nuclear Instruments V4 Hardware Board
+ */
 class HW_V4 : public HW {
 public:
 

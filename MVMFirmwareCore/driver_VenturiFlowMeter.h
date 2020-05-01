@@ -2,7 +2,7 @@
 
 #ifndef _DRIVER_VENTURISPIROQUANTH _h
 #define _DRIVER_VENTURISPIROQUANTH _h
-typedef enum { SpiroquantH_R122P04, ALPE_1551} t_VenturiSensorModel;
+typedef enum { VENTURI_CUSTOM, SpiroquantH_R122P04, ALPE_1551} t_VenturiSensorModel;
 
 class VenturiFlowMeter
 {
@@ -12,14 +12,16 @@ public:
 	bool setLowpass(float lowpass);
 	float GetIntegral();
 	void ResetIntegral();
-
+	bool VenturiSetCoefficient(int index, float value);
 
 private:
 	float SpiroquantH_R122P04_Convert(float pressure);
 	float ALPE_1551_Convert(float pressure);
+	float VenturiCustom_Convert(float pressure);
 	float VenturiFlux=0;
 	float _LowPass;
 	float Integral=0;
+	float CustomCoefficients[5];
 	t_VenturiSensorModel _model;
 };
 

@@ -31,6 +31,9 @@ public:
 	void CalibrateOxygenSensor();
 	void DOVenturiMeterScan();
 	void DOValveScan();
+	bool VenturiSetCoefficient(int index, float value);
+
+
 private:
 	
 	HAL MVM_HAL;

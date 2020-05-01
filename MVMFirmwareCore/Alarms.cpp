@@ -5,25 +5,48 @@
 #include "Alarms.h"
 #include "UtilsFn.h"
 
+/**
+ * \brief Initialize alarm class
+ * 
+ * This function mist be called before any other usages
+ * of the class
+ * 
+ * \param hal       Pointer to the HAL class
+ * \param sys_c     Pointer to the t_SystemStatus class
+ */
 void AlarmClass::Init(HAL* hal, t_SystemStatus* sys_c)
 {
+    //Make a private copy of HALL and SystemStatus pointers
 	_sys_c = sys_c;
 	_HAL = hal;
+
+    //Class Variable initialization
     AlarmSound = false;
     led_on = false;
     isInAlarm = false;
     wdog_enable = false;
 
+    //Create two circular buffer to store the dP on Valve and Patient
     CycleCyclePLoop = new CircularBuffer(5);
     CycleCyclePPatient = new CircularBuffer(5);
 }
 
+
+/**
+ * \brief   Tick function to be called periodically
+ * 
+ * The function check for alarms and execute the task 
+ * related to the alarm manage
+ */
 void AlarmClass::Tick()
 {
+    //Check alarms that are not triggered by events
     CheckStaticAlarms();
 
+    //Filter alarm in function of snooze bits
     ALARM_FLAG_FILTERED = ALARM_FLAG & (~ALARM_FLAG_SNOOZE);
 
+    //Reset snooze bits after 120s
     if (_HAL->Get_dT_millis(ALARM_FLAG_SNOOZE_millis) > 120000)
         ALARM_FLAG_SNOOZE = 0;
 
@@ -43,12 +66,20 @@ void AlarmClass::Tick()
         AlarmSound = false;
     }
 
+    //Buzzer
     Sound();
+
+    //Other alarm actions
     AlarmActions();
 
+    //GUI alarm flags
     _sys_c->ALARM_FLAG = ALARM_FLAG_FILTERED;
 }
 
+/**
+ * \brief   Leds and relays 
+ * 
+ */
 void AlarmClass::AlarmActions()
 {
     if (isInAlarm)
@@ -370,6 +401,16 @@ void AlarmClass::TriggerAlarm(t_ALARM Alarm)
         _HAL->dbg.DbgPrint(DBG_CODE, DBG_INFO, "ALARM @ " + String(millis()) + " ALARM_APNEA");
         ALARM_FLAG = ALARM_FLAG | GenerateFlag(__ERROR_APNEA);
         break;
+
+	case ALARM_NO_VENTURI_CONNECTED:
+		_HAL->dbg.DbgPrint(DBG_CODE, DBG_INFO, "ALARM @ " + String(millis()) + " ALARM_APNEA");
+		ALARM_FLAG = ALARM_FLAG | GenerateFlag(__ERROR_VENTURI_NOT_CONNECTED);
+		break;
+
+	case ALARM_VENTURI_INVERTED:
+		_HAL->dbg.DbgPrint(DBG_CODE, DBG_INFO, "ALARM @ " + String(millis()) + " ALARM_APNEA");
+		ALARM_FLAG = ALARM_FLAG | GenerateFlag(__ERROR_VENTURI_INVERTED);
+		break;
         
     case UNPREDICTABLE_CODE_EXECUTION:
         _HAL->dbg.DbgPrint(DBG_CODE, DBG_INFO, "ALARM @ " + String(millis()) + " UNPREDICTABLE_CODE_EXECUTION");

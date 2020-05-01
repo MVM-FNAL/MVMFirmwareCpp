@@ -568,6 +568,11 @@ void HAL::DOValveScan()
 	}
 }
 
+bool HAL::VenturiSetCoefficient(int index, float value)
+{
+	return drv_FlowVenturi.VenturiSetCoefficient(index, value);
+}
+
 
 
 //                  #     # ### 

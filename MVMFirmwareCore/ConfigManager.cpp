@@ -313,6 +313,40 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 		bres = true;
 	}
 
+	if (strPatam == "venturi_coefficient_0") {
+		float numberValue = v.toFloat();
+        ((MVMCore*)core)->VenturiSetCoefficient(0, numberValue);
+		bres = true;
+	}
+
+	if (strPatam == "venturi_coefficient_1") {
+		float numberValue = v.toFloat();
+		((MVMCore*)core)->VenturiSetCoefficient(1, numberValue);
+		bres = true;
+	}
+
+	if (strPatam == "venturi_coefficient_2") {
+		float numberValue = v.toFloat();
+		((MVMCore*)core)->VenturiSetCoefficient(2, numberValue);
+		bres = true;
+	}
+
+	if (strPatam == "venturi_coefficient_3") {
+		float numberValue = v.toFloat();
+		((MVMCore*)core)->VenturiSetCoefficient(3, numberValue);
+		bres = true;
+	}
+
+	if (strPatam == "venturi_coefficient_4") {
+		float numberValue = v.toFloat();
+		((MVMCore*)core)->VenturiSetCoefficient(4, numberValue);
+		bres = true;
+	}
+
+
+
+
+
 	if (callback_AfterConfigurationSet)
 	{
 		callback_AfterConfigurationSet();

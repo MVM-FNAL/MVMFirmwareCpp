@@ -12,6 +12,8 @@ void TidalVolumeClass::Init(HAL* hal)
 	InspVolumeVenturi=0;
 	ExpVolumeVenturi=0;
 	TidalCorrection = 1;
+	LastSensirionVolume = 0;
+	LastVenturiVolume = 0;
 	FLUX=0;
 	Status = 0;
 	_HAL = hal;
@@ -97,6 +99,10 @@ void TidalVolumeClass::DoExhale()
 		TidalCorrection = InspVolumeVenturi / InspVolumeSensirion;
 	else
 		TidalCorrection = 1;
+
+
+
+	
 	//Serial.println("SENS: " + String(InspVolumeVenturi) + " VENT: " + String(InspVolumeSensirion) + " COR: " + String(TidalCorrection));
 	Status = 2;
 }

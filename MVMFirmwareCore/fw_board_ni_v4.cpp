@@ -136,7 +136,7 @@ bool HW_V4::Init()
  * 
  * This function also switch mux port in order to access to required device
  * 
- * \param device		name of the device listened in the iic_dev
+ * \param device		name of the device listened in the t_i2cdevices iic_dev 
  * \param wbuffer		buffer to be written
  * \param wlength		length of the buffer
  * \param stop			add stop bit at end of transaction
@@ -171,7 +171,7 @@ bool HW_V4::I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool st
  * 
  * This function also switch mux port in order to access to required device
  * 
- * \param device		name of the device listened in the iic_dev
+ * \param device		name of the device listened in the iic_dev (t_i2cdevices)
  * \param wbuffer		buffer to be written
  * \param wlength		length of the buffer to be written
  * \param rbuffer		reading buffer (should be allocated externally)
@@ -218,7 +218,7 @@ bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t*
  * 
  * This function also switch mux port in order to access to required device
  * 
- * \param device		name of the device listened in the iic_dev
+ * \param device		name of the device listened in the iic_dev (t_i2cdevices)
  * \param rbuffer		reading buffer (should be allocated externally)
  * \param rlength		number of bytes to be read
  * \param stop			add stop at end of transaction
@@ -559,7 +559,7 @@ void HW_V4::i2c_MuxSelect(uint8_t i)
 /**
  * \brief	Search in the iic_devs list a particular device and return descriptor
  * 
- * \param device	device to be searched for
+ * \param device	device (t_i2cdevices) to be searched for
  * \return			device handler
  */
 t_i2cdev HW_V4::GetIICDevice(t_i2cdevices device)
