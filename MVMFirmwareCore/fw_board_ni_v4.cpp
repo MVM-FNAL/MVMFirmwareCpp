@@ -453,29 +453,51 @@ bool HW_V4::DataAvailableOnUART0()
  * \brief	API to write a string to the communication interfaces
  * 
  * \param s		String to be written
- * \return 
+ * \return		always true
  */
 bool HW_V4::WriteUART0(String s)
 {
 	Serial.println(s);
 	return true;
 }
+
+/**
+ * \brief	Return a \n terminated string from communication interface
+ * 
+ * \return		Recevied string
+ */
 String HW_V4::ReadUART0UntilEOL()
 {
 	//PERICOLO. SE IL \n NON VIENE INVIATO TUTTO STALLA!!!!
 	return Serial.readStringUntil('\n');
 }
 
+/**
+ * \brief	Retrun milliseconds from system startup
+ * 
+ * \return  milliseconds from boot
+ */
 uint64_t HW_V4::GetMillis()
 {
 	return (uint64_t)millis();
 }
+
+/**
+ * \brief	Calculate delta time in ms respect now
+ * 
+ * \param ms	start ms
+ * \return		delta ms
+ */
 int64_t HW_V4::Get_dT_millis(uint64_t ms)
 {
 	return (int64_t)(millis() - ms);
 }
 
 
+/**
+ * \brief Detect all I2C devices on bus
+ * 
+ */
 void HW_V4::__service_i2c_detect()
 {
 	byte error, address;
@@ -509,7 +531,13 @@ void HW_V4::__service_i2c_detect()
 	}
 }
 
-
+/**
+ * \brief	Switch I2C multiplexer
+ * 
+ * Check if mux is already in the correct position otherwise commutate
+ * 
+ * \param i
+ */
 void HW_V4::i2c_MuxSelect(uint8_t i)
 {
 	if (i > 7)
@@ -528,6 +556,12 @@ void HW_V4::i2c_MuxSelect(uint8_t i)
 	delayMicroseconds(500);
 }
 
+/**
+ * \brief	Search in the iic_devs list a particular device and return descriptor
+ * 
+ * \param device	device to be searched for
+ * \return			device handler
+ */
 t_i2cdev HW_V4::GetIICDevice(t_i2cdevices device)
 {
 	for (int i = 0; i < IIC_COUNT; i++)
@@ -539,8 +573,12 @@ t_i2cdev HW_V4::GetIICDevice(t_i2cdevices device)
 	}
 }
 
-
-
+/**
+ * \brief	Read a supervisor register
+ * 
+ * \param i_address		address of the register in the supervisor register file
+ * \return				value of the register
+ */
 uint16_t HW_V4::ReadSupervisor(uint8_t i_address)
 {
 	uint8_t wbuffer[4];
@@ -549,14 +587,18 @@ uint16_t HW_V4::ReadSupervisor(uint8_t i_address)
 	wbuffer[0] = i_address;
 	I2CRead(IIC_SUPERVISOR, wbuffer, 1, rbuffer, 2, true);
 
-	uint16_t a = Wire.read();
-	uint16_t b = Wire.read();
+	uint16_t a;
 
 	a = (rbuffer [1]<< 8) | rbuffer[0];
 	return a;
 }
 
-
+/**
+ * \brief	Write a supervisor register
+ * 
+ * \param i_address		address of the register in the supervisor register file
+ * \param write_data	value of the register
+ */
 void HW_V4::WriteSupervisor( uint8_t i_address, uint16_t write_data)
 {
 	uint8_t wbuffer[4];
@@ -567,14 +609,41 @@ void HW_V4::WriteSupervisor( uint8_t i_address, uint16_t write_data)
 	I2CWrite(IIC_SUPERVISOR, wbuffer, 3, true);
 
 }
+
+/**
+ * \brief	API return pressure on input of MVM
+ * 
+ * \return		pressure in mbar
+ */
 float HW_V4::GetPIN()
 {
 	return pIN;
 }
+
+/**
+ * \brief	API return temperature of the board
+ * 
+ * \return		temperature in °C
+ */
 float HW_V4::GetBoardTemperature()
 {
 	return BoardTemperature;
 }
+
+/**
+ * \brief	API return Supervisor managed alarms
+ * 
+ *			bit 0 : input pressure too low
+ *			bit 1 : input pressure too high
+ *			bit 2 : board temperature too low
+ *			bit 3 : board temperature too high
+ *			bit 4 : no activity on the valves
+ *			bit 5 : power regulator issue
+ *			bit 6 : battery charge critical
+ * 
+ * 
+ * \return	encoded alarm status
+ */
 uint16_t HW_V4::GetSupervisorAlarms()
 {
 	return HW_AlarmsFlags;
