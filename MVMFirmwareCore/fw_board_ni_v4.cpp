@@ -78,9 +78,18 @@ bool HW_V4::Init()
 	iic_devs[2].muxport = 1;
 	iic_devs[2].address = 0x76;
 
+#ifdef USE_SPIROMETER_SFM3019
 	iic_devs[3].t_device = IIC_FLOW1;
 	iic_devs[3].muxport = 1;
 	iic_devs[3].address = 0x2E;
+
+#endif
+
+#ifdef USE_SPIROMETER_SFM3000
+	iic_devs[3].t_device = IIC_FLOW1;
+	iic_devs[3].muxport = 1;
+	iic_devs[3].address = 0x40;
+#endif
 
 	iic_devs[4].t_device = IIC_ADC_0;
 	iic_devs[4].muxport = 4;
@@ -99,10 +108,6 @@ bool HW_V4::Init()
 	iic_devs[7].muxport = 1;
 	iic_devs[7].address = 0x00;
 
-
-	iic_devs[8].t_device = IIC_FLOW2;
-	iic_devs[8].muxport = 1;
-	iic_devs[8].address = 0x40;
 
 	batteryStatus_reading_LT = GetMillis();
 
