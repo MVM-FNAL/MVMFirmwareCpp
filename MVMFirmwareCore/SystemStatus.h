@@ -93,4 +93,6 @@ typedef struct
     uint32_t WARNING_FLAG = 0;
 
     bool in_over_pressure_emergency = false;
+
+    bool backup_apnea = false;
 } t_SystemStatus;

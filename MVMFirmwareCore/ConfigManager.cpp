@@ -28,6 +28,11 @@ void ConfigManagerClass::Init(void* _core, t_SystemStatus* _sys_s, AlarmClass *_
     core_config.inhale_ms = 60000.0 / core_config.respiratory_rate * (1 - core_config.respiratory_ratio);
     core_config.exhale_ms = 60000.0 / core_config.respiratory_rate * (core_config.respiratory_ratio);
 
+    core_config.apnea_ptarget = 15;
+    core_config.apnea_rate = 20;
+    core_config.apnea_ratio = 0.66;
+
+
     core_config.P = 70;
     core_config.I = 3;
     core_config.D = 0;
@@ -89,16 +94,12 @@ bool ConfigManagerClass::SetParameter(String p, String v)
     if (strPatam == "rate") {
         float numberValue = v.toFloat();
         core_config.respiratory_rate = numberValue;
-        core_config.inhale_ms = 60000.0 / core_config.respiratory_rate * (1 - core_config.respiratory_ratio);
-        core_config.exhale_ms = 60000.0 / core_config.respiratory_rate * (core_config.respiratory_ratio);
         bres = true;
     }
 
     if (strPatam == "ratio") {
         float numberValue = v.toFloat();
         core_config.respiratory_ratio = numberValue;
-        core_config.inhale_ms = 60000.0 / core_config.respiratory_rate * (1 - core_config.respiratory_ratio);
-        core_config.exhale_ms = 60000.0 / core_config.respiratory_rate * (core_config.respiratory_ratio);
         bres = true;
     }
 
@@ -287,19 +288,36 @@ bool ConfigManagerClass::SetParameter(String p, String v)
         bres = true;
     }
     
-
-    if (callback_AfterConfigurationSet)
-    {
-        callback_AfterConfigurationSet();
-    }
-
-
     if (strPatam == "epc") {
         float numberValue = v.toFloat();
         bool enable = numberValue < 1 ? false : true;
         core_config.enable_pressure_compensation = enable;
         bres = true;
     }
+
+	if (strPatam == "apnea_rate") {
+		float numberValue = v.toFloat();
+		core_config.apnea_rate = numberValue;
+		bres = true;
+	}
+
+	if (strPatam == "apnea_ratio") {
+		float numberValue = v.toFloat();
+		core_config.apnea_ratio = numberValue;
+		bres = true;
+	}
+
+	if (strPatam == "apnea_ptarget") {
+		float numberValue = v.toFloat();
+		core_config.apnea_ptarget = numberValue;
+		bres = true;
+	}
+
+	if (callback_AfterConfigurationSet)
+	{
+		callback_AfterConfigurationSet();
+	}
+
 
     return bres;
 }
@@ -421,7 +439,19 @@ String ConfigManagerClass::GetParameter(String p)
     if (strPatam == "leak_compensation") {
         return  "valore=" + String(core_config.leak_compensation);
     }
-    
+
+	if (strPatam == "apnea_rate") {
+		return  "valore=" + String(core_config.apnea_rate);
+	}
+
+	if (strPatam == "apnea_ratio") {
+		return  "valore=" + String(core_config.apnea_ratio);
+	}
+
+	if (strPatam == "apnea_ptarget") {
+		return  "valore=" + String(core_config.apnea_ptarget);
+	}
+
     if (strPatam == "all") {
         return "valore=" + String(sys_s->pPatient) 
             + "," + String(sys_s->Flux)

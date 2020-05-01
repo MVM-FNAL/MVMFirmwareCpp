@@ -31,7 +31,7 @@ void MVM_StateMachine::SMExecute()
 {
 
     static int delta_error_counter = 0;
-
+    
 
     
     timer1+=dT;
@@ -52,14 +52,27 @@ void MVM_StateMachine::SMExecute()
                 //ResetStats();
                 
                 last_start = MVM_HAL->GetMillis();
+
+				if (sys_c->backup_apnea == false)
+				{
+					cycle_pressure_target = core_config->target_pressure_auto;
+					core_config->inhale_ms = 60000.0 / core_config->respiratory_rate * (1 - core_config->respiratory_ratio);
+					core_config->exhale_ms = 60000.0 / core_config->respiratory_rate * (core_config->respiratory_ratio);
+				}
+				else
+				{
+					cycle_pressure_target = core_config->apnea_ptarget;
+					core_config->inhale_ms = 60000.0 / core_config->apnea_rate * (1 - core_config->apnea_ratio);
+					core_config->exhale_ms = 60000.0 / core_config->apnea_rate * (core_config->apnea_ratio);
+				}
               
                 //Compensate pressure flat top error changing set point
                 if (core_config->enable_pressure_compensation)
                 {
-                    if ((core_config->target_pressure_auto - sys_c->currentP_Peak) > 0)
+                    if ((cycle_pressure_target - sys_c->currentP_Peak) > 0)
                         sys_c->pressure_compensation_coeff++;
                     else
-                        if ((core_config->target_pressure_auto - sys_c->currentP_Peak) < 0)
+                        if ((cycle_pressure_target - sys_c->currentP_Peak) < 0)
                            sys_c->pressure_compensation_coeff--;
 
                     sys_c->pressure_compensation_coeff > 15 ? 15 : sys_c->pressure_compensation_coeff;
@@ -106,7 +119,7 @@ void MVM_StateMachine::SMExecute()
 
                 sys_c->__stat_param.t90a = 0;
                 MVM_HAL->SetOutputValve(false);
-                MVM_HAL->SetInputValve(core_config->target_pressure_auto  + sys_c->pressure_compensation_coeff);
+                MVM_HAL->SetInputValve(cycle_pressure_target + sys_c->pressure_compensation_coeff);
 
                 timer1 = dT;
                 mvm_sm = FR_WAIT_INHALE_TIME;
@@ -122,7 +135,7 @@ void MVM_StateMachine::SMExecute()
  
                     sys_c->dbg_trigger = 0;
                     //Trigger for assist breathing
-                    bool backup_trigger = false;
+                    
 
                     if (core_config->backup_enable)
                     {
@@ -131,10 +144,12 @@ void MVM_StateMachine::SMExecute()
                         {
                             //backup_trigger = true;
                             core_config->BreathMode = M_BREATH_FORCED;
+                            sys_c->backup_apnea = true;
+                            sys_c->pressure_compensation_coeff = 0;
                             MVM_Alarms->TriggerAlarm(ALARM_APNEA);
                         }
                     }
-                    if ((((-1.0 * sys_c->PPatient_delta2) > core_config->assist_pressure_delta_trigger) && (sys_c->PPatient_delta < 0)) || (backup_trigger == true)) {
+                    if (((-1.0 * sys_c->PPatient_delta2) > core_config->assist_pressure_delta_trigger) && (sys_c->PPatient_delta < 0)) {
                         sys_c->dbg_trigger = 1;
 
                         if (callback_NewCycle)
@@ -145,8 +160,27 @@ void MVM_StateMachine::SMExecute()
                         //ResetStats();
 
                         last_start = MVM_HAL->GetMillis();
-                        
-                        MVM_HAL->SetInputValve(core_config->target_pressure_assist);
+                        cycle_pressure_target = core_config->target_pressure_assist;
+
+						//Compensate pressure flat top error changing set point
+						if (core_config->enable_pressure_compensation)
+						{
+							if ((cycle_pressure_target - sys_c->currentP_Peak) > 0)
+								sys_c->pressure_compensation_coeff++;
+							else
+								if ((cycle_pressure_target - sys_c->currentP_Peak) < 0)
+									sys_c->pressure_compensation_coeff--;
+
+							sys_c->pressure_compensation_coeff > 15 ? 15 : sys_c->pressure_compensation_coeff;
+							sys_c->pressure_compensation_coeff < -15 ? -15 : sys_c->pressure_compensation_coeff;
+
+						}
+						else
+						{
+							sys_c->pressure_compensation_coeff = 0;
+						}
+
+                        MVM_HAL->SetInputValve(cycle_pressure_target);
                         MVM_HAL->SetOutputValve(false);
                         timer1 = dT;
 
@@ -166,6 +200,7 @@ void MVM_StateMachine::SMExecute()
             MVM_HAL->SetInputValve(0);
             MVM_HAL->SetOutputValve(true);
             sys_c->pressure_compensation_coeff = 0;
+            sys_c->backup_apnea = false;
         }
         break;
 

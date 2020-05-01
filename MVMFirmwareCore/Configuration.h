@@ -62,6 +62,10 @@ typedef struct
 
     float pause_timeout;
     float leak_compensation = 0;
+
+    float apnea_rate;
+    float apnea_ratio;
+    float apnea_ptarget;
     
 } t_config;
 

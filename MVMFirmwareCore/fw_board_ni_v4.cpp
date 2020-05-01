@@ -449,6 +449,12 @@ bool HW_V4::DataAvailableOnUART0()
 	return Serial.available();
 }
 
+/**
+ * \brief	API to write a string to the communication interfaces
+ * 
+ * \param s		String to be written
+ * \return 
+ */
 bool HW_V4::WriteUART0(String s)
 {
 	Serial.println(s);
