@@ -344,9 +344,6 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 	}
 
 
-
-
-
 	if (callback_AfterConfigurationSet)
 	{
 		callback_AfterConfigurationSet();
@@ -580,6 +577,12 @@ String ConfigManagerClass::GetParameter(String p)
         ((MVMCore*)core)->DOValveScan();
         return  "valore=OK";
     }
+
+	if (strPatam == "leakage_test") {
+		((MVMCore*)core)->LEAKAGETest();
+        return  "valore=OK";
+	}
+
     
 
     return "valore=ERROR:Invalid Command Argument";

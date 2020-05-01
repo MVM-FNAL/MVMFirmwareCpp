@@ -32,7 +32,7 @@ public:
 	void DOVenturiMeterScan();
 	void DOValveScan();
 	bool VenturiSetCoefficient(int index, float value);
-
+	void LEAKAGETest();
 
 private:
 	

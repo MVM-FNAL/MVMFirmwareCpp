@@ -129,7 +129,7 @@ class HAL
 		void DOVenturiMeterScan();
 		void DOValveScan();
 		bool VenturiSetCoefficient(int index, float value);
-
+		void LEAKAGETest();
 		uint8_t i2c_scheduler;
 		uint8_t _adc_channel;
 		float ADC_Results[4];

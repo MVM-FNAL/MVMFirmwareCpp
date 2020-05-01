@@ -316,6 +316,11 @@ bool MVMCore::VenturiSetCoefficient(int index, float value)
 }
 
 
+void MVMCore::LEAKAGETest()
+{
+	MVM_HAL.LEAKAGETest();
+}
+
 void MVMCore::MVMDebugPrintLogger()
 {
 	float pid_slow, pid_fast;

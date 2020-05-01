@@ -574,6 +574,32 @@ bool HAL::VenturiSetCoefficient(int index, float value)
 }
 
 
+void HAL::LEAKAGETest()
+{
+	SetOutputValve(true);
+	SetInputValve(30);
+	for (int i = 0; i < 12; i++)
+	{
+		float pLmeas, tLmeas;
+		float pPmeas, tPmeas;
+		drv_PLoop.doMeasure(&pLmeas, &tLmeas);
+		drv_PPatient.doMeasure(&pPmeas, &tPmeas);
+		hwi.WriteUART0(String(i*50/12) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
+		hwi.__delay_blocking_ms(250);
+	}
+	SetInputValve(0);
+	for (int i = 0; i < 12; i++)
+	{
+		float pLmeas, tLmeas;
+		float pPmeas, tPmeas;
+		drv_PLoop.doMeasure(&pLmeas, &tLmeas);
+		drv_PPatient.doMeasure(&pPmeas, &tPmeas);
+		hwi.WriteUART0(String(50 + (i * 50 / 12)) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
+		hwi.__delay_blocking_ms(250);
+	}
+	SetOutputValve(false);
+
+}
 
 //                  #     # ### 
 //                  ##    #  #  
@@ -586,3 +612,4 @@ bool HAL::VenturiSetCoefficient(int index, float value)
 // Nuclear Instruments 2020 - All rights reserved
 // Any commercial use of this code is forbidden
 // Contact info@nuclearinstruments.eu
+
