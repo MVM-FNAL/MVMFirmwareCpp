@@ -131,7 +131,7 @@ void PressureLoopClass::PID_FAST_LOOP()
         Pset2 = Pmeas;
         pid_integral = 0;
         pid_prec = 0;
-        _ValvePWM = ValveLUT(0);
+        _ValvePWM = ValveLUT(2);
     }
     else {
         Pset2 = (Pset2 * _filter_fast) + ((1 - _filter_fast) * fast_pid_set);
@@ -162,7 +162,7 @@ void PressureLoopClass::PID_FAST_LOOP()
         pid_prec = pid_error;
 
         if (_Pset == 0)
-            _ValvePWM = ValveLUT(0);
+            _ValvePWM = ValveLUT(2);
         else
             _ValvePWM = ValveLUT(pid_outb*100.0/4095);
 
