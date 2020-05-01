@@ -89,6 +89,8 @@ bool in_pressure_alarm = false;
 bool circuit_alarm = false;
 bool activity_alarm = false;
 
+bool emergency_alarm = false;
+
 uint16_t ALARM_FLAG = 0;
 
 uint32_t GenerateFlag(int alarm_code)
@@ -128,7 +130,9 @@ void setup() {
 void loop() {
 
     // put your main code here, to run repeatedly:
-
+    static uint32_t pv1_high=-1;
+    static uint32_t pv2_high = -1;
+    static bool breethe_old;
     bool pv1_bool;
 
     pv2 = digitalRead(VALVE_THREE_WAY);
@@ -166,87 +170,100 @@ void loop() {
     */
 
 
-    pv1_bool = pv1 > 20 ? true : false;
+    //Watch dog Alam
 
-    /*
-      TRACE OF WHAT TO DO
-
-      STATE MACHINE
-
-      STATE 1 WAIT BREATH SIGNAL GO HIGH
-      STATE 2 WAIT PV1 IS HIGH
-      STATE 3 WAIT BREATH SIGNAL GO LOW
-      STATE 4 WAIT PV2 IS HIGH
-
-      IF THE STATE MACHINE DOES NOT GO THROUGHT ALL THIS STATE
-      TRIGGER ALARM
-
-    */
-
-
-
-
-    /*
-      //Alarms in run only
-      if (Run)
-      {
-        if (InPress < Pin_min)
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_PIN_TOO_LOW);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_PIN_TOO_LOW);
-
-        if (pbattery<5.0)
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_CHARGE_CRITICAL);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_CHARGE_CRITICAL);
-
-      }
-      else
-      {
-
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_PIN_TOO_LOW);
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_CHARGE_CRITICAL);
-      }
-
-        if (InPress > Pin_max)
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_PIN_TOO_HIGH);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_PIN_TOO_HIGH);
-
-        if (ntc < 5)
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_TEMP_LOW);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_TEMP_LOW);
-
-        if (ntc > 80)
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_TEMP_HIGH);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_TEMP_HIGH);
-
-        if ((p12v > 14.5) || (p12v < 10) || (p33v < 3.15) || (p33v > 3.4) || (Ref25 < 19000.00) || (Ref25 > 21000.00))  //aggiungere check raspberry
-          ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_POWER);
-        else
-          ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_POWER);
-
-
-    if (ALARM_FLAG!=0)
+    if (EnableWdogController)
     {
-      digitalWrite(ALARM_RELE, 0);
-      digitalWrite(ALARM_RED, 1);
-      digitalWrite(ALARM_BUZZER, 1);
+        if (millis() - wdogtimer > 2000)
+        {
+            wdog_alarm = true;
+        }
+        else
+            wdog_alarm = false;
     }
     else
     {
-      digitalWrite(ALARM_RELE, 1);
-      digitalWrite(ALARM_RED, 0);
-      digitalWrite(ALARM_BUZZER, 0);
-
-
+        wdog_alarm = false;
     }
-      //Allarmi sempre attivi
-    */
 
-    delay(25);
+
+    pv1_bool = pv1 > 10 ? true : false;
+
+    if (pv1_bool) pv1_high++;
+    if (pv2) pv2_high++;
+
+
+    // Breethe signal alarm (valve lockdown)
+
+    if ((!breethe_old) && (breethe))
+    {
+        if ((pv1_high != -1) && (pv2_high != -1))
+        {
+            if ((pv1_high < 5) || (pv2_high < 5))
+            {
+                activity_alarm = true;
+            }
+            else
+                activity_alarm = false;
+        }
+
+        pv1_high = 0;
+        pv2_high = 0;
+    }
+
+    breethe_old = breethe;
+
+    emergency_alarm = wdog_alarm | activity_alarm;
+
+    if (emergency_alarm != false)
+    {
+        digitalWrite(ALARM_RELE, 0);
+        digitalWrite(ALARM_RED, 1);
+        digitalWrite(ALARM_BUZZER, 1);
+    }
+    else
+    {
+        digitalWrite(ALARM_RELE, 1);
+        digitalWrite(ALARM_RED, 0);
+        digitalWrite(ALARM_BUZZER, 0);
+    }
+
+    
+      //Alarms in run only
+    
+      
+    if (pbattery<5.0)
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_CHARGE_CRITICAL);
+    else
+        ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_CHARGE_CRITICAL);
+       
+
+    if (InPress > Pin_max)
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_PIN_TOO_HIGH);
+    else
+        ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_PIN_TOO_HIGH);
+
+    if (ntc < -25)
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_TEMP_LOW);
+    else
+        ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_TEMP_LOW);
+
+    if (ntc > 90)
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_TEMP_HIGH);
+    else
+        ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_TEMP_HIGH);
+
+    if ((p12v > 15) || (p12v < 8) || (p33v < 3) || (p33v > 3.6) || (Ref25 < 18000.00) || (Ref25 > 22000.00))
+        ALARM_FLAG = ALARM_FLAG | GenerateFlag(ALARM_POWER);
+    else
+        ALARM_FLAG = ALARM_FLAG & ~GenerateFlag(ALARM_POWER);
+
+
+
+      //Allarmi sempre attivi
+    
+
+    delay(10);
 
 
 }
@@ -281,6 +298,7 @@ void receiveEvent(int howMany) {
             if (iic_int_addr == 0x01)
             {
                 EnableWdogController = databuffer[0];
+                wdogtimer = millis();
             }
 
             if (iic_int_addr == 0x02)
@@ -330,12 +348,12 @@ void requestEvent() {
 
     if (iic_int_addr == 0x50)
     {
-        value = (uint16_t)(InPress > 0 ? InPress : 0) * 1000;
+        value = (uint16_t)((InPress > 0 ? InPress : 0) * 1000);
     }
 
     if (iic_int_addr == 0x51)
     {
-        value = (uint16_t)(pbattery > 0 ? pbattery : 0);
+        value = (uint16_t)((pbattery > 0 ? pbattery : 0));
     }
 
     if (iic_int_addr == 0x52)

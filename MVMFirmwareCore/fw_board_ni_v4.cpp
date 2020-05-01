@@ -128,7 +128,7 @@ bool HW_V4::Init()
 	* 1 : PRODUCTION	- ENABLE SUPERVISOR WATCHDOG
 	*/
 
-	WriteSupervisor(0x00, 0);
+	WriteSupervisor(0x01, 0);
 }
 
 /**
@@ -414,7 +414,7 @@ void HW_V4::Tick()
 		HW_AlarmsFlags = (uint16_t)ReadSupervisor(0x57);
 
 		//reset supervisor watchdog
- 		WriteSupervisor(0x00, 0);
+ 		WriteSupervisor(0x00, 1);
 		//Serial.println("Battery: " + String(currentBatteryCharge) + " PWALL: " + String (pWall));
 	}
 	
