@@ -22,7 +22,7 @@ void PressureLoopClass::Init(float fast_ms, int32_t LoopRatio, void* handle)
     _PID_I2 = 12;
     _PID_D2 = 0;
     _pid_limit = 0.55;
-    _filter_fast = 0.95;// 0.9;
+    _filter_fast = 0.9;// 0.9;
     _filter_slow = 0.7;
     _ValvePWM = 0;
 
@@ -158,7 +158,7 @@ void PressureLoopClass::PID_FAST_LOOP()
 
         if (pid_out < 0)
             pid_integral = integral_before;
-        pid_outb = pid_outb * 0.5 + pid_out * 0.5;
+        //pid_outb = pid_outb * 0.9 + pid_out * 0.1;
         pid_outb = pid_out;
         if (pid_outb < 0)
             pid_outb = 0;

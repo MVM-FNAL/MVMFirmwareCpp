@@ -107,7 +107,7 @@ void HAL::Tick()
 		{
 			if (fabs(ploop_raw) < 150)
 			{
-				Ploop = Ploop * 0.4 + ploop_raw * 0.6;
+				Ploop = Ploop * 0.2 + ploop_raw * 0.8;
 				MEM_PLoop->PushData(Ploop);
 				PressureLoop.SetPressure(PRESSURE_VALVE, Ploop);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Ploop: " + String(Ploop));

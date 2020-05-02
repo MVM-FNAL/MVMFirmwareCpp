@@ -316,7 +316,7 @@ void Sensor5525DSO::CalibrateDate_5525DSO(int32_t raw_temp, int32_t raw_pressure
  */
 uint8_t Sensor5525DSO::GetResolutionByteCodeTemp()
 {
-    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
+    switch (sensor_resolution)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 0x50;
@@ -340,7 +340,7 @@ uint8_t Sensor5525DSO::GetResolutionByteCodeTemp()
  */
 uint8_t Sensor5525DSO::GetResolutionByteCodePressure()
 {
-    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
+    switch (sensor_resolution)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 0x40;
@@ -365,14 +365,14 @@ uint8_t Sensor5525DSO::GetResolutionByteCodePressure()
  */
 uint32_t Sensor5525DSO::GetResolutionDelay()
 {
-    switch (sensor_model)       //ERRORE DEVE ESSERE ps_resolution
+    switch (sensor_resolution)       //ERRORE DEVE ESSERE ps_resolution
     {
     case OVS_256:
         return 1;
     case OVS_512:
         return 2;
     case OVS_1024:
-        return 5;
+        return 3;
     case OVS_2048:
         return 6;
     case OVS_4096:

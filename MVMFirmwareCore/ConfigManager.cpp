@@ -46,8 +46,8 @@ void ConfigManagerClass::Init(void* _core, t_SystemStatus* _sys_s, AlarmClass *_
     core_config.apnea_ratio = 0.66;
 
 
-    core_config.P = 70;
-    core_config.I = 3;
+    core_config.P = 150;
+    core_config.I = 8;
     core_config.D = 0;
 
     core_config.I_rhard = 3;
