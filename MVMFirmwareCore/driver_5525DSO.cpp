@@ -374,7 +374,7 @@ uint32_t Sensor5525DSO::GetResolutionDelay()
     case OVS_1024:
         return 3;
     case OVS_2048:
-        return 6;
+        return 4.9;
     case OVS_4096:
         return 11;
     default:
