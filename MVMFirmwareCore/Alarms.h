@@ -43,7 +43,7 @@ private:
     bool wdog_enable=false;
     float P0Loop=0;
     float P0Patient=0;
-    
+    bool _disable_alarms = 0;
     CircularBuffer* CycleCyclePLoop;
     CircularBuffer* CycleCyclePPatient;
 
@@ -60,6 +60,7 @@ public:
     void EnableWatchDog(bool enable);
     void SetAlarmGUI(bool in_alarm);
     void SetAlarmTest(bool in_alarm);
+    void DisableAllAlarms(bool disable);
 };
 
 #endif

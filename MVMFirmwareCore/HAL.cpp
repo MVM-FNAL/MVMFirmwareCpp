@@ -28,7 +28,7 @@ void HAL::Init()
 	drv_PLoop.Init(IIC_PS_0, PLOOP_MODEL, OVS_2048, &_dc);
 	drv_PPatient.Init(IIC_PS_1, PPATIENT_MODEL, OVS_1024, &_dc);
 	drv_PVenturi.Init(IIC_PS_2, PVENTURI, OVS_1024, &_dc);
-	drv_FlowVenturi.Init(ALPE_1551);
+	drv_FlowVenturi.Init(VENTURI_CUSTOM);
 
 	PressureLoop.Init(5, 2, &_dc);
 	drv_ADC0.Init(IIC_ADC_0, &_dc);
@@ -500,7 +500,9 @@ void HAL::DOVenturiMeterScan()
 		for (int i = 30; i < 100; i++)
 		{
 			hwi.PWMSet(PWM_PV1, i);
-			hwi.__delay_blocking_ms(500);
+			uint64_t start_time = hwi.GetMillis();
+			while (hwi.Get_dT_millis(start_time) < 500)
+				hwi.Tick();
 			fref_m = 0;
 			pmeas_m = 0;
 			for (int j = 0; j < 30; j++)
@@ -517,7 +519,6 @@ void HAL::DOVenturiMeterScan()
 			hwi.WriteUART0(String(i) + "," + String(fref_m, 5) + "," + String(pmeas_m, 5));
 		}
 
-		hwi.WriteUART0("valore=OK");
 	}
 	else
 	{
@@ -570,7 +571,6 @@ void HAL::DOValveScan()
 			hwi.WriteUART0(String(i) + "," + String(fref_m, 5));
 		}
 
-		hwi.WriteUART0("valore=OK");
 	}
 	else
 	{
@@ -613,7 +613,6 @@ void HAL::LEAKAGETest()
 			Tick();
 	}
 	SetOutputValve(false);
-	hwi.WriteUART0("valore=OK");
 }
 
 //                  #     # ### 

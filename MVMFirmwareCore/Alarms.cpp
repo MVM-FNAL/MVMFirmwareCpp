@@ -40,40 +40,43 @@ void AlarmClass::Init(HAL* hal, t_SystemStatus* sys_c)
  */
 void AlarmClass::Tick()
 {
-    //Check alarms that are not triggered by events
-    CheckStaticAlarms();
-
-    //Filter alarm in function of snooze bits
-    ALARM_FLAG_FILTERED = ALARM_FLAG & (~ALARM_FLAG_SNOOZE);
-
-    //Reset snooze bits after 120s
-    if (_HAL->Get_dT_millis(ALARM_FLAG_SNOOZE_millis) > 120000)
-        ALARM_FLAG_SNOOZE = 0;
-
-    if (ALARM_FLAG != 0) {
-        isInAlarm = true;
-    }
-    else
+    if (!_disable_alarms)
     {
-        isInAlarm = false;
+        //Check alarms that are not triggered by events
+        CheckStaticAlarms();
+
+        //Filter alarm in function of snooze bits
+        ALARM_FLAG_FILTERED = ALARM_FLAG & (~ALARM_FLAG_SNOOZE);
+
+        //Reset snooze bits after 120s
+        if (_HAL->Get_dT_millis(ALARM_FLAG_SNOOZE_millis) > 120000)
+            ALARM_FLAG_SNOOZE = 0;
+
+        if (ALARM_FLAG != 0) {
+            isInAlarm = true;
+        }
+        else
+        {
+            isInAlarm = false;
+        }
+
+        if (ALARM_FLAG_FILTERED != 0) {
+            AlarmSound = true;
+        }
+        else
+        {
+            AlarmSound = false;
+        }
+
+        //Buzzer
+        Sound();
+
+        //Other alarm actions
+        AlarmActions();
     }
-
-    if (ALARM_FLAG_FILTERED != 0) {
-        AlarmSound = true;
-    }
-    else
-    {
-        AlarmSound = false;
-    }
-
-    //Buzzer
-    Sound();
-
-    //Other alarm actions
-    AlarmActions();
-
     //GUI alarm flags
     _sys_c->ALARM_FLAG = ALARM_FLAG_FILTERED;
+    
 }
 
 /**
@@ -103,6 +106,8 @@ void AlarmClass::AlarmActions()
         _HAL->SetAlarmRele(false);
     }
 }
+
+
 
 /**
  * \brief   Execute the High Priority melody
@@ -282,6 +287,7 @@ void AlarmClass::Sound()
     else
     {
         _HAL->SetBuzzer(false);
+        alarm_state = 0;
     }
 }
 
@@ -584,6 +590,33 @@ uint32_t AlarmClass::GenerateFlag(int alarm_code)
     return (1 << alarm_code);
 }
 
+
+
+/**
+ * \brief   Disable all alarms
+ *
+ * \param in_alarm  true to disable alarms
+ */
+
+void AlarmClass::DisableAllAlarms(bool disable)
+{
+    _disable_alarms = disable;
+
+    if (disable)
+    {
+        ALARM_FLAG_FILTERED = 0;
+        ALARM_FLAG = 0;
+        ALARM_FLAG_SNOOZE = 0;
+        led_on = false;
+        isInAlarm = false;
+        AlarmSound = false;
+        _HAL->SetAlarmLed(false);
+        _HAL->SetAlarmRele(false);
+        _HAL->SetBuzzer(false);
+
+    }
+
+}
 
 //                  #     # ### 
 //                  ##    #  #  

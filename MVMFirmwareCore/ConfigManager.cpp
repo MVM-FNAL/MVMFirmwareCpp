@@ -384,6 +384,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 
     //When using CUSTOM Venturi, set fitting coefficient 0
 	if (strPatam == "venturi_coefficient_0") {
+        v.replace("\"", "");
 		float numberValue = v.toFloat();
         ((MVMCore*)core)->VenturiSetCoefficient(0, numberValue);
 		bres = true;
@@ -391,6 +392,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 
     //When using CUSTOM Venturi, set fitting coefficient 1
 	if (strPatam == "venturi_coefficient_1") {
+        v.replace("\"", "");
 		float numberValue = v.toFloat();
 		((MVMCore*)core)->VenturiSetCoefficient(1, numberValue);
 		bres = true;
@@ -398,6 +400,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 
     //When using CUSTOM Venturi, set fitting coefficient 2
 	if (strPatam == "venturi_coefficient_2") {
+        v.replace("\"", "");
 		float numberValue = v.toFloat();
 		((MVMCore*)core)->VenturiSetCoefficient(2, numberValue);
 		bres = true;
@@ -405,6 +408,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 
     //When using CUSTOM Venturi, set fitting coefficient 3
 	if (strPatam == "venturi_coefficient_3") {
+        v.replace("\"", "");
 		float numberValue = v.toFloat();
 		((MVMCore*)core)->VenturiSetCoefficient(3, numberValue);
 		bres = true;
@@ -412,6 +416,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 
     //When using CUSTOM Venturi, set fitting coefficient 4
 	if (strPatam == "venturi_coefficient_4") {
+        v.replace("\"", "");
 		float numberValue = v.toFloat();
 		((MVMCore*)core)->VenturiSetCoefficient(4, numberValue);
 		bres = true;
@@ -712,19 +717,28 @@ String ConfigManagerClass::GetParameter(String p)
 
     //Start a flow scan for venturi calibration
     if (strPatam == "venturi_scan") {
+        core_config.run = false;
+        Alarms->DisableAllAlarms(true);
         ((MVMCore*)core)->DOVenturiMeterScan();
+        Alarms->DisableAllAlarms(false);
         return  "valore=OK";
     }
 
     //Start flow scan for valve calibration
     if (strPatam == "valve_scan") {
+        core_config.run = false;
+        Alarms->DisableAllAlarms(true);
         ((MVMCore*)core)->DOValveScan();
+         Alarms->DisableAllAlarms(false);
         return  "valore=OK";
     }
 
     //Start leakage test
 	if (strPatam == "leakage_test") {
+        core_config.run = false;
+        Alarms->DisableAllAlarms(true);
 		((MVMCore*)core)->LEAKAGETest();
+        Alarms->DisableAllAlarms(false);
         return  "valore=OK";
 	}
 
