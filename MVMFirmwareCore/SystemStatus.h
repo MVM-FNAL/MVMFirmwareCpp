@@ -39,6 +39,9 @@ typedef struct
     uint32_t start_time;
     int phase;
 
+
+
+
 } t_stat_param;
 
 typedef struct
@@ -95,4 +98,9 @@ typedef struct
     bool in_over_pressure_emergency = false;
 
     bool backup_apnea = false;
+
+
+    float Pin;
+    float BoardTemperature;
+    uint16_t SupervisorAlarms;
 } t_SystemStatus;

@@ -611,6 +611,24 @@ String ConfigManagerClass::GetParameter(String p)
 		return  "valore=" + String(core_config.apnea_ptarget);
 	}
 
+    //Get Input pressure
+    if (strPatam == "pin") {
+        return  "valore=" + String(sys_s->Pin);
+    }
+
+    //Get board temperature
+    if (strPatam == "btemp") {
+        return  "valore=" + String(sys_s->BoardTemperature);
+    }
+
+    //Supervisor alarms
+    if (strPatam == "salarm") {
+        return  "valore=" + String(sys_s->SupervisorAlarms);
+    }
+
+
+
+
     //Get used by GUI to download all parameters together
     /*
         0       patient pressure

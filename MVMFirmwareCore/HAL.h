@@ -133,6 +133,9 @@ class HAL
 		void DOValveScan();
 		bool VenturiSetCoefficient(int index, float value);
 		void LEAKAGETest();
+		uint32_t GetSupervisorAlarms();
+		float GetBoardTemp();
+		float GetPin();
 		uint8_t i2c_scheduler;
 		uint8_t _adc_channel;
 		float ADC_Results[4];

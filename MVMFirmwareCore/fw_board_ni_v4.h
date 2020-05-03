@@ -44,10 +44,11 @@ public:
     float GetPIN();
     float GetBoardTemperature();
     uint16_t GetSupervisorAlarms();
-
+    
 
 
 private:
+    bool EnableWatchdogSupervisor = true;
     void __service_i2c_detect();
     void i2c_MuxSelect(uint8_t i);
     t_i2cdev GetIICDevice(t_i2cdevices device);

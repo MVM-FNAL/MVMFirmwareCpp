@@ -375,6 +375,21 @@ void HAL::GetInputValvePID(float* pid_slow, float* pid_fast)
 	PressureLoop.GetPidMonitor(pid_slow, pid_fast);
 }
 
+uint32_t HAL::GetSupervisorAlarms()
+{
+	return SupervisorAlarms;
+}
+float HAL::GetBoardTemp()
+{
+	return BoardTemperature;
+}
+float HAL::GetPin()
+{
+	return Pin;
+}
+
+
+
 uint64_t HAL::GetMillis()
 {
 	return hwi.GetMillis();
@@ -496,7 +511,7 @@ void HAL::DOVenturiMeterScan()
 	float fref_m, pmeas_m, cnt;
 	if (flush_pipe_mode)
 	{
-		SetOutputValve(true);
+		SetOutputValve(false);
 		for (int i = 30; i < 100; i++)
 		{
 			hwi.PWMSet(PWM_PV1, i);
@@ -534,7 +549,7 @@ void HAL::DOValveScan()
 	float fref_m, pmeas_m, cnt;
 	if (flush_pipe_mode)
 	{
-		SetOutputValve(true);
+		SetOutputValve(false);
 		for (int i = 0; i < 100; i++)
 		{
 			hwi.PWMSet(PWM_PV1, i);
@@ -601,13 +616,13 @@ void HAL::LEAKAGETest()
 		
 	}
 	SetInputValve(0);
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 36; i++)
 	{
 		float pLmeas, tLmeas;
 		float pPmeas, tPmeas;
 		drv_PLoop.doMeasure(&pLmeas, &tLmeas);
 		drv_PPatient.doMeasure(&pPmeas, &tPmeas);
-		hwi.WriteUART0(String(50 + (i * 50 / 12)) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
+		hwi.WriteUART0(String(50 + (i * 50 / 35)) + "," + String(pLmeas, 5) + "," + String(pPmeas, 5));
 		uint64_t start_time = hwi.GetMillis();
 		while (hwi.Get_dT_millis(start_time) < 250)
 			Tick();

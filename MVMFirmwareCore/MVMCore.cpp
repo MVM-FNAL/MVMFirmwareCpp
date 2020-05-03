@@ -96,6 +96,10 @@ void MVMCore::Tick()
 	
 	if (alarm_enable)
 		Alarms.Tick();
+
+	sys_s.Pin= MVM_HAL.GetPin();
+	sys_s.SupervisorAlarms = MVM_HAL.GetSupervisorAlarms();
+	sys_s.BoardTemperature = MVM_HAL.GetBoardTemp();
 }
 
 bool MVMCore::DataAvailableOnUART0()

@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/* ***********************************************************************
  * MVM Ventialotor V4 Firmware
  *
  * This code is designed to run on the HW V4 of MVM Ventialor
@@ -14,8 +14,7 @@
  * This code is property of Nuclear Instruments and distributed
  * with fair use license
  *
- ****************************************************************************/
-
+ *************************************************************************** */
 
 #define SCL_PIN 2
 #define SCL_PORT PORTD
@@ -133,6 +132,7 @@ void loop() {
     static uint32_t pv1_high=-1;
     static uint32_t pv2_high = -1;
     static bool breethe_old;
+    static int32_t activity_alarm_counter=0;
     bool pv1_bool;
 
     pv2 = digitalRead(VALVE_THREE_WAY);
@@ -161,8 +161,9 @@ void loop() {
         " InPress: " + String(InPress) +
         " Ref25: " + String(Ref25) +
         " p33v: " + String(p33v) +
-        " ALARM_FLAG: " + String(ALARM_FLAG)
-
+        " ALARM_FLAG: " + String(ALARM_FLAG) + 
+        " WDOG_ALARM: " + String(wdog_alarm) +
+        " Activity Alarm: " + String(activity_alarm) 
     );
 
     /*
@@ -174,7 +175,7 @@ void loop() {
 
     if (EnableWdogController)
     {
-        if (millis() - wdogtimer > 2000)
+        if (millis() - wdogtimer > 4000)
         {
             wdog_alarm = true;
         }
@@ -194,23 +195,30 @@ void loop() {
 
 
     // Breethe signal alarm (valve lockdown)
-
+ if (EnableWdogController)
+ {
     if ((!breethe_old) && (breethe))
     {
         if ((pv1_high != -1) && (pv2_high != -1))
         {
             if ((pv1_high < 5) || (pv2_high < 5))
             {
-                activity_alarm = true;
+                activity_alarm_counter++;
             }
             else
-                activity_alarm = false;
+              activity_alarm_counter=0;
+   
         }
 
         pv1_high = 0;
         pv2_high = 0;
     }
 
+    if ( activity_alarm_counter > 3)      
+      activity_alarm = true;    
+    else
+      activity_alarm = false;
+ }
     breethe_old = breethe;
 
     emergency_alarm = wdog_alarm | activity_alarm;

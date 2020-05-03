@@ -601,7 +601,7 @@ uint32_t AlarmClass::GenerateFlag(int alarm_code)
 void AlarmClass::DisableAllAlarms(bool disable)
 {
     _disable_alarms = disable;
-
+    ResetWatchDog();
     if (disable)
     {
         ALARM_FLAG_FILTERED = 0;
@@ -615,6 +615,8 @@ void AlarmClass::DisableAllAlarms(bool disable)
         _HAL->SetBuzzer(false);
 
     }
+
+  
 
 }
 

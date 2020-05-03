@@ -90,7 +90,10 @@ float PressureLoopClass::ValveLUT(float pid_value)
     float tret = 0;
     // if (pid_value > pid_fast_last)
     {
-        tret = (0.00126 * pid_value * pid_value) + (0.42098 * pid_value) + 37.32803;
+        if (pid_value == 0)
+            tret = 30;
+        else
+            tret = (0.00126 * pid_value * pid_value) + (0.42098 * pid_value) + 37.32803;
     }
     // else
     // {
@@ -136,7 +139,7 @@ void PressureLoopClass::PID_FAST_LOOP()
         Pset2 = Pmeas;
         //pid_integral = 0;
         pid_prec = 0;
-        _ValvePWM = ValveLUT(1);
+        _ValvePWM = ValveLUT(0);
         pid_outb = 0;
     }
     else {

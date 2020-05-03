@@ -31,7 +31,7 @@ void MVM_StateMachine::SMExecute()
 {
 
     static int delta_error_counter = 0;
-    
+
 
     
     timer1+=dT;
@@ -84,6 +84,7 @@ void MVM_StateMachine::SMExecute()
                     sys_c->pressure_compensation_coeff = 0;
                 }
             
+
                 //TRY TO AUTOCOMPENSATE
                 /*if (fabs(sys_c->pres_peak - core_config->target_pressure_auto) > 10)
                 {
@@ -115,7 +116,8 @@ void MVM_StateMachine::SMExecute()
                         core_config->pid_limit
                     );
                 }*/
-              
+
+
 
                 sys_c->__stat_param.t90a = 0;
                 MVM_HAL->SetOutputValve(false);
@@ -208,6 +210,7 @@ void MVM_StateMachine::SMExecute()
         dbg_state_machine = 1;
 
         if (timer1 >= core_config->inhale_ms ) {
+
             if ((core_config->pause_inhale == false) && (core_config->pause_lg == false)) {
                 timer1 = 0;
 
