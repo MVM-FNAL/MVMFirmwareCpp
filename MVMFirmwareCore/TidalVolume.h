@@ -10,6 +10,21 @@
 #endif
 #include "HAL.h"
 
+/**
+ * \brief This class implement the calculation of flux and Volume.
+ * 
+ * The class is triggered by the availability of date from the two spirometers
+ * and calculate:
+ *		- Ispiratory volume
+ *		- Expiratory volume
+ *		- Total Volume
+ *		- Flux
+ *
+ * The class use the Sensirion measure to compensate the venturi measure
+ * in order to make more accurate the venturi
+ * 
+ * It is also used to generate alarm on venturi inversion
+ */
 class TidalVolumeClass
 {
 private:
