@@ -13,6 +13,9 @@
 
 typedef enum { OxygenSensorA } t_OxygenSensorModel;
 
+/**
+ * \brief This class manage the sersor oxygen conversion.
+ */
 class OxygenSensor
 {
 public:
