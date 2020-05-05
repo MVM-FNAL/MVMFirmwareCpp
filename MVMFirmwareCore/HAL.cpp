@@ -131,8 +131,12 @@ void HAL::Tick()
 				MEM_PPatient->PushData(Ppatient);
 				PressureLoop.SetPressure(PRESSURE_PATIENT, Ppatient);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - PPatient: " + String(Ppatient));
+#ifdef DOXYGEN
+                                MVM.PPatient_Event();
+#else
 				if (callback_ppatient)
 					callback_ppatient();
+#endif
 			}
 		}
 		else if (drv_PVenturi.asyncGetResult(&Pventuri, &Tventuri))
