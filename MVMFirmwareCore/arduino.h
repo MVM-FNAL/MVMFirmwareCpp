@@ -20,7 +20,9 @@ String operator+(const char*, String);
 struct Argument {};
 struct Command {};
 struct CommandError {};
-struct SimpleCLI {};
+struct SimpleCLI {
+   void parse(String s);
+};
 typedef const char* cmd;
 typedef const char* cmd_error;
 #else

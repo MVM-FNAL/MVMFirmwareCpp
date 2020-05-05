@@ -38,6 +38,14 @@ void GetCommandCallback(cmd* c);
 void CliErrorCallback(cmd_error* e);
 void InitConsoleInterface();
 
+#ifdef DOXYGEN
+void SimpleCLI::parse(String s) {
+        cmd* c;
+        SetCommandCallback(c);
+        GetCommandCallback(c);
+}
+#endif
+
 void setup() {
 
     InitConsoleInterface();
