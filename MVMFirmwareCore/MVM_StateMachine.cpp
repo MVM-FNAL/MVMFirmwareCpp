@@ -4,6 +4,10 @@
 
 #include "MVM_StateMachine.h"
 
+#ifdef DOXYGEN
+#include "MVMCore.h"
+extern MVMCore MVM;
+#endif
 
 void MVM_StateMachine::Init(HAL* _MVM_HAL, AlarmClass *_MVM_Alarms, t_config* _core_config, t_SystemStatus* _sys_c, int32_t _dT)
 {
@@ -122,8 +126,12 @@ void MVM_StateMachine::SMExecute()
             if ((core_config->pause_inhale == false) && (core_config->pause_lg == false)) {
                 timer1 = 0;
 
+#ifdef DOXYGEN
+                MVM.Exhale_Event();
+#else
                 if (callback_Exhale)
                     callback_Exhale();
+#endif
 
                 //StatPhaseExpire();
 
@@ -211,8 +219,12 @@ void MVM_StateMachine::SMExecute()
             
             //StatPhaseExpire();
             
+#ifdef DOXYGEN
+            MVM.Exhale_Event();
+#else
             if (callback_Exhale)
                 callback_Exhale();
+#endif
 
             MVM_HAL->SetInputValve(0);
             MVM_HAL->SetOutputValve(true);
