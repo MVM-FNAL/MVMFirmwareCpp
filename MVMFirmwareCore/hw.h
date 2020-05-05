@@ -23,7 +23,7 @@ public:
     
         virtual bool Init();
         virtual bool I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool stop);
-        virtual bool I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop);
+        virtual bool I2CWRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop);
         virtual bool I2CRead(t_i2cdevices device, uint8_t* rbuffer, int rlength, bool stop);
         virtual bool PWMSet(hw_pwm id, float value);
         virtual bool IOSet(hw_gpio id, bool value);

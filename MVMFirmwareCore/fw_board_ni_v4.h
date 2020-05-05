@@ -23,7 +23,7 @@ public:
 
     bool Init();
     bool I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool stop);
-    bool I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop);
+    bool I2CWRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop);
     bool I2CRead(t_i2cdevices device, uint8_t* rbuffer, int rlength, bool stop);
     bool PWMSet(hw_pwm id, float value);
     bool IOSet(hw_gpio id, bool value);

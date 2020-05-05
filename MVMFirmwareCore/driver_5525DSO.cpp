@@ -28,7 +28,7 @@ bool Sensor5525DSO::Init(t_i2cdevices device, t_ps_sensor model, t_ps_resolution
 
     for (int i = 0; i < 6; i++) {
         wbuffer[0] = 0xA0 + ((i + 1) << 1);
-        bres = hwi->I2CRead(i2c_device, wbuffer, 1, rbuffer, 2, true);
+        bres = hwi->I2CWRead(i2c_device, wbuffer, 1, rbuffer, 2, true);
         if (!bres) return false;
         sensorCT.C[i] = (rbuffer[0] << 8) + rbuffer[1];
     }

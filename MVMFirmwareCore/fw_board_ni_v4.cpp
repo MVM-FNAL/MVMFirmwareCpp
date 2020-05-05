@@ -110,7 +110,7 @@ bool HW_V4::I2CWrite(t_i2cdevices device, uint8_t* wbuffer, int wlength, bool st
 	else
 		return true;
 }
-bool HW_V4::I2CRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop)
+bool HW_V4::I2CWRead(t_i2cdevices device, uint8_t* wbuffer, int wlength, uint8_t* rbuffer, int rlength, bool stop)
 {
 	uint8_t address;
 	uint8_t count;
