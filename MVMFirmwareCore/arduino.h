@@ -1,7 +1,5 @@
 #pragma once
 #ifdef DOXYGEN
-struct Serial {} Serial;
-//typedef const char* String;
 struct String {
    String() {}; // ctor
    String(const char*) {}; // ctor
@@ -14,9 +12,18 @@ struct String {
    bool operator==(const char*);
    int toInt() const;
    float toFloat() const;
-   //String readStringUntil(char);
 };
 String operator+(const char*, String);
+struct Serial {
+   void begin(int);
+   bool available();
+   String readStringUntil(char);
+   String readStringUntil(int);
+   void print(const char*);
+   void print(String);
+   void println(const char*);
+   void println(String);
+} Serial;
 struct Argument {};
 struct Command {};
 struct CommandError {};

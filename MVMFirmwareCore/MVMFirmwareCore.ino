@@ -43,6 +43,8 @@ void SimpleCLI::parse(String s) {
         cmd* c;
         SetCommandCallback(c);
         GetCommandCallback(c);
+        cmd_error* e;
+        CliErrorCallback(e);
 }
 #endif
 
