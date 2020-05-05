@@ -8,6 +8,10 @@
 #include "UtilsFn.h"
 #include "MVMCore.h"
 
+#ifdef DOXYGEN
+extern MVMCore MVM;
+#endif
+
 void ConfigManagerClass::Init(void* _core, t_SystemStatus* _sys_s, AlarmClass *_Alarms)
 {
     sys_s = _sys_s;
@@ -48,10 +52,14 @@ void ConfigManagerClass::Init(void* _core, t_SystemStatus* _sys_s, AlarmClass *_
 
 bool ConfigManagerClass::SetParameter(String p, String v)
 {
+#ifdef DOXYGEN
+   // not used
+#else
     if (callback_BeforeConfigurationSet)
     {
         callback_BeforeConfigurationSet();
     }
+#endif
     bool bres = false;
     String strPatam = p;
 
@@ -276,18 +284,25 @@ bool ConfigManagerClass::SetParameter(String p, String v)
         bres = true;
     }
     
-
+#ifdef DOXYGEN
+    MVM.ConfigurationChanged_Event();
+#else
     if (callback_AfterConfigurationSet)
     {
         callback_AfterConfigurationSet();
     }
+#endif
 
     return bres;
 }
 String ConfigManagerClass::GetParameter(String p)
 {
+#ifdef DOXYGEN
+   // not used
+#else
     if (callback_BeforeConfigurationGet)
         callback_BeforeConfigurationGet();
+#endif
     String strPatam = p;
 
     //Serial.println("CMD: " +  param.getValue() + " " +  value.getValue());
