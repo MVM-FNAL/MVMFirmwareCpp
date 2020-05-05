@@ -116,8 +116,12 @@ void HAL::Tick()
 				MEM_PLoop->PushData(Ploop);
 				PressureLoop.SetPressure(PRESSURE_VALVE, Ploop);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Ploop: " + String(Ploop));
+#ifdef DOXYGEN
+                                MVM.PLoop_Event();
+#else
 				if (callback_ploop)
 					callback_ploop();
+#endif
 			}
 		}
 		else if (drv_PPatient.asyncGetResult(&Ppatient, &Tpatient))
