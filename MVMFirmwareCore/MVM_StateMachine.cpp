@@ -67,8 +67,12 @@ void MVM_StateMachine::SMExecute()
             else {
                 //ASSISTED
                 if (core_config->BreathMode == M_BREATH_ASSISTED) {
+#ifdef DOXYGEN
+                   MVM.EndCycle_Event();
+#else
                     if (callback_EndCycle)
                         callback_EndCycle();
+#endif
                    
                     MVM_HAL->SetOutputValve(true);
  
@@ -159,8 +163,12 @@ void MVM_StateMachine::SMExecute()
 
         if (timer1 >= core_config->exhale_ms ) {
             if (core_config->pause_exhale == false) {
+#ifdef DOXYGEN
+                   MVM.EndCycle_Event();
+#else
                 if (callback_EndCycle)
                     callback_EndCycle();
+#endif
                 //StatEndCycle();
                 MVM_HAL->SetOutputValve(false);
                 mvm_sm = FR_OPEN_INVALVE;
@@ -178,8 +186,12 @@ void MVM_StateMachine::SMExecute()
                 {
                     if (((-1.0 * sys_c->PPatient_delta2) > core_config->assist_pressure_delta_trigger) && (sys_c->PPatient_delta < 0)) {
                         //StatEndCycle();
+#ifdef DOXYGEN
+                   MVM.EndCycle_Event();
+#else
                         if (callback_EndCycle)
                             callback_EndCycle();
+#endif
                         MVM_HAL->SetOutputValve(false);
                         mvm_sm = FR_OPEN_INVALVE;
                     }
