@@ -147,8 +147,12 @@ void HAL::Tick()
 				MEM_FlowVenturi->PushData(FlowVenturi);
 				MEM_PVenturi->PushData(Pventuri);
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - PVenturi: " + String(Pventuri) + " - FlowVenturi: " + String(FlowVenturi));
+#ifdef DOXYGEN
+                                MVM.FlowVenturi_Event();
+#else
 				if (callback_venturi)
 					callback_venturi();
+#endif
 			}
 		}
 		else if (drv_ADC0.asyncGetResult(&ADC_LastResult))
@@ -275,8 +279,12 @@ void HAL::Tick()
 					MEM_FlowIn->PushData(FlowIn);
 					GasTemperature = TFlowIn;
 					dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Flow: " + String(FlowIn));
+#ifdef DOXYGEN
+                                        MVM.FlowIn_Event();
+#else
 					if (callback_flowsens)
 						callback_flowsens();
+#endif
 				}
 				i2c_scheduler = 6;
 				break;
