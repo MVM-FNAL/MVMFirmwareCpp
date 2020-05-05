@@ -19,7 +19,11 @@
 // the setup function runs once when you press reset or power the board
 
 #include "MVMCore.h"
+#ifdef DOXYGEN
+#include <arduino.h>
+#else
 #include <SimpleCLI.h>
+#endif
 
 MVMCore MVM;
 

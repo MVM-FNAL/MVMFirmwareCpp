@@ -125,6 +125,8 @@ class HAL
 		uint8_t _adc_channel;
 		float ADC_Results[4];
 
+#ifdef DOXYGEN
+#else
 		std::function<void()> callback_ploop = NULL;
 		std::function<void()> callback_ppatient = NULL;
 		std::function<void()> callback_flowsens = NULL;
@@ -156,6 +158,7 @@ class HAL
 		{
 			callback_alarm = callback;
 		}
+#endif
 
 
 		void Tick();

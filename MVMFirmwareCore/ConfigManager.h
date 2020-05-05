@@ -24,6 +24,8 @@ class ConfigManagerClass
 	 void Init(void *_core, t_SystemStatus* _sys_s, AlarmClass *_Alarms);
 	 t_config core_config;
 
+#ifdef DOXYGEN
+#else
 	 std::function<void()> callback_BeforeConfigurationGet = NULL;
 	 std::function<void()> callback_BeforeConfigurationSet = NULL;
 	 std::function<void()> callback_AfterConfigurationSet = NULL;
@@ -42,6 +44,7 @@ class ConfigManagerClass
 	 {
 		 callback_AfterConfigurationSet = callback;
 	 }
+#endif
 
 private:
 	AlarmClass *Alarms;

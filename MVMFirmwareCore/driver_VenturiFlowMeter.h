@@ -1,7 +1,7 @@
-// driver_VenturiSpiroquantH .h
+// driver_VenturiSpiroquantH.h
 
-#ifndef _DRIVER_VENTURISPIROQUANTH _h
-#define _DRIVER_VENTURISPIROQUANTH _h
+#ifndef _DRIVER_VENTURISPIROQUANTH_h
+#define _DRIVER_VENTURISPIROQUANTH_h
 typedef enum { SpiroquantH_R122P04, ALPE_1551} t_VenturiSensorModel;
 
 class VenturiFlowMeter

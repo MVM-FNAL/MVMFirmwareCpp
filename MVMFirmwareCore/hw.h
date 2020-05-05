@@ -10,8 +10,11 @@
 #endif
 
 #include "generic_definitions.h"
-#include <functional>
 
+#ifdef DOXYGEN
+#else
+#include <functional>
+#endif
 
 class HW {
 public:

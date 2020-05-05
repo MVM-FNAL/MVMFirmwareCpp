@@ -12,8 +12,19 @@
 // Any commercial use of this code is forbidden
 // Contact info@nuclearinstruments.eu
 
-
+#ifdef DOXYGEN
+#define NULL ((void*)0)
+#define uint8_t int
+#define int8_t int
+#define uint16_t int
+#define int16_t int
+#define uint32_t int
+#define int32_t int
+#define uint64_t int
+#define int64_t int
+#else
 #include <stdint.h>
+#endif
 
 //#define HARDWARE_TARGET_PLATFORM_V3 1
 #define HARDWARE_TARGET_PLATFORM_V4 1

@@ -4,8 +4,11 @@
 
 #include "fw_board_ni_v4.h"
 
-
+#ifdef DOXYGEN
+struct Wire {} Wire;
+#else
 #include <Wire.h>
+#endif
 
 
 #define VALVE_IN_PIN		A1 

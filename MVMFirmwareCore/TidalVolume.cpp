@@ -3,7 +3,10 @@
 // 
 
 #include "TidalVolume.h"
+#ifdef DOXYGEN
+#else
 #include <math.h>
+#endif
 #define VOL_COMP 0.4
 void TidalVolumeClass::Init(HAL* hal)
 {

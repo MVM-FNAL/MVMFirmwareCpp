@@ -5,21 +5,29 @@
 
 
 #include "MVMCore.h"
+#ifdef DOXYGEN
+#else
 #include <functional>
 using namespace std::placeholders; 
+#endif
 
 void MVMCore::Init()
 {
 	MVM_HAL.Init();
 	
 	CMC.Init(this, &sys_s, &Alarms);
+#ifdef DOXYGEN
+#else
 	CMC.addHandler_AfterConfigurationSet(std::bind(&MVMCore::ConfigurationChanged_Event, this));
+#endif
 
 	MVM_HAL.SetInputValve(0);
 	MVM_HAL.SetOutputValve(0);
 	MVM_HAL.SetAlarmLed(false);
 	MVM_HAL.SetAlarmRele(false);
 	MVM_HAL.SetBuzzer(false);
+#ifdef DOXYGEN
+#else
 	MVM_HAL.addHandler_PLoop(std::bind(&MVMCore::PLoop_Event, this));
 	MVM_HAL.addHandler_PPatient(std::bind(&MVMCore::PPatient_Event, this));
 	MVM_HAL.addHandler_FlowSens(std::bind(&MVMCore::FlowIn_Event, this));
@@ -28,6 +36,7 @@ void MVMCore::Init()
 	MVM_SM.addHandler_NewCycle(std::bind(&MVMCore::NewCycle_Event, this));
 	MVM_SM.addHandler_Exhale(std::bind(&MVMCore::Exhale_Event, this));
 	MVM_SM.addHandler_EndCycle(std::bind(&MVMCore::EndCycle_Event, this));
+#endif
 
 	MEM_Ppatient_LP = new CircularBuffer(10);
 	

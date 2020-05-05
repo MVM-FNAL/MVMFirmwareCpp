@@ -13,7 +13,11 @@
 
 
 #include "HAL.h"
+
+#ifdef DOXYGEN
+#else
 #include <functional>
+#endif
 
 void HAL::Init()
 {

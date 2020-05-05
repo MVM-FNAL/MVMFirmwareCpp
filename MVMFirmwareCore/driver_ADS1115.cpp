@@ -4,9 +4,10 @@
 
 #include "driver_ADS1115.h"
 
-
+#ifdef DOXYGEN
+#else
 #include <Wire.h>
-
+#endif
 
 static uint8_t i2cread(void) {
 #if ARDUINO >= 100

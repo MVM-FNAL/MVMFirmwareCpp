@@ -1,5 +1,10 @@
 // CircularBuffer.h
+#ifdef DOXYGEN
+#define int32_t int
+#define uint32_t int
+#else
 #include <stdint.h>
+#endif
 
 #ifndef _CIRCULARBUFFER_h
 #define _CIRCULARBUFFER_h

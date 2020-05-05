@@ -3,7 +3,10 @@
 // 
 
 #include "CircularBuffer.h"
+#ifdef DOXYGEN
+#else
 #include <string.h>
+#endif
 
 CircularBuffer::CircularBuffer(int32_t size)
 {

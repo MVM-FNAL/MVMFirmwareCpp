@@ -2,9 +2,9 @@
 // 
 // 
 
+#include "generic_definitions.h"
 #include "ConfigManager.h"
 #include "FwVersion.h"
-#include "generic_definitions.h"
 #include "UtilsFn.h"
 #include "MVMCore.h"
 

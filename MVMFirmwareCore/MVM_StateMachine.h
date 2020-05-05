@@ -9,11 +9,13 @@
 	#include "WProgram.h"
 #endif
 
+#ifdef DOXYGEN
+#else
 #include <stdint.h>
+#endif
 
-
-#include "ConfigManager.h"
 #include "HAL.h"
+#include "ConfigManager.h"
 
 
 typedef enum {
@@ -34,7 +36,9 @@ public:
 	void Init(HAL* _MVM_HAL, AlarmClass *_MVM_Alarms, t_config* core_config, t_SystemStatus* sys_c, int32_t _dT);
 	void Tick();
 	uint32_t dbg_state_machine;
-	
+
+#ifdef DOXYGEN	
+#else
 	std::function<void()> callback_NewCycle = NULL;
 	std::function<void()> callback_Exhale = NULL;
 	std::function<void()> callback_EndCycle = NULL;
@@ -53,6 +57,7 @@ public:
 	{
 		callback_EndCycle = callback;
 	}
+#endif
 
 private:
 	void SMExecute();
