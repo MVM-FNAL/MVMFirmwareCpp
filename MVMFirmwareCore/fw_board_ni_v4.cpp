@@ -369,7 +369,7 @@ uint16_t HW_V4::ReadSupervisor(uint8_t i_address)
 	uint8_t rbuffer[4];
 		
 	wbuffer[0] = i_address;
-	I2CRead(IIC_SUPERVISOR, wbuffer, 1, rbuffer, 2, true);
+	I2CWRead(IIC_SUPERVISOR, wbuffer, 1, rbuffer, 2, true);
 
 	uint16_t a = Wire.read();
 	uint16_t b = Wire.read();
