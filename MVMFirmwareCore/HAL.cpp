@@ -15,6 +15,8 @@
 #include "HAL.h"
 
 #ifdef DOXYGEN
+#include "MVMCore.h"
+extern MVMCore MVM;
 #else
 #include <functional>
 #endif
@@ -470,8 +472,12 @@ void HAL::CalibrateOxygenSensorInPureOxygen()
 
 void HAL::TriggerAlarm(t_ALARM alarm_code)
 {
+#ifdef DOXYGEN
+   MVM.HardwareAlarm_Event(alarm_code);
+#else
 	if (callback_alarm)
 		callback_alarm(alarm_code);
+#endif
 }
 
 float HAL::GetGasTemperature()
