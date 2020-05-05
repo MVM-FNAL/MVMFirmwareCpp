@@ -48,8 +48,12 @@ void MVM_StateMachine::SMExecute()
             //RUN RESPIRATORY
             if (core_config->BreathMode == M_BREATH_FORCED) {
 
+#ifdef DOXYGEN
+                MVM.NewCycle_Event();
+#else
                 if (callback_NewCycle)
                     callback_NewCycle();
+#endif
                 //AUTOMATIC
                 //PRES_SENS_CT[2].ZERO += dt_veturi_100ms;
 
@@ -93,8 +97,12 @@ void MVM_StateMachine::SMExecute()
                     if ((((-1.0 * sys_c->PPatient_delta2) > core_config->assist_pressure_delta_trigger) && (sys_c->PPatient_delta < 0)) || (backup_trigger == true)) {
                         sys_c->dbg_trigger = 1;
 
+#ifdef DOXYGEN
+                MVM.NewCycle_Event();
+#else
                         if (callback_NewCycle)
                             callback_NewCycle();
+#endif
                         //PRES_SENS_CT[2].ZERO += dt_veturi_100ms;
 
                         //StatEndCycle();
