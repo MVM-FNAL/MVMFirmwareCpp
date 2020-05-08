@@ -35,6 +35,17 @@ void GetCommandCallback(cmd* c);
 void CliErrorCallback(cmd_error* e);
 void InitConsoleInterface();
 
+#ifdef DOXYGEN
+struct SimpleCLI {
+   void parse() {
+   	SetCommandCallback();
+   	GetCommandCallback();
+   	CliErrorCallback();
+	}
+   void addCommand();
+};
+#endif
+
 void setup() {
 
     InitConsoleInterface();
@@ -53,6 +64,7 @@ void loop() {
 }
 
 
+#ifndef DOXYGEN
 void InitConsoleInterface()
 {
     cli.setOnError(CliErrorCallback); // Set error Callback
@@ -63,6 +75,7 @@ void InitConsoleInterface()
     param_get = cli.addCommand("get", GetCommandCallback);
     param_get.addPositionalArgument("param", "null");
 }
+#endif
 
 
  void SetCommandCallback(cmd* c)
