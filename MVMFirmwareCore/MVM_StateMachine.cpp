@@ -46,6 +46,8 @@ void MVM_StateMachine::SMExecute()
 
                 if (callback_NewCycle)
                     callback_NewCycle();
+		MVMCore::NewCycle_Event();
+
                 //AUTOMATIC
                 //PRES_SENS_CT[2].ZERO += dt_veturi_100ms;
 
@@ -132,7 +134,8 @@ void MVM_StateMachine::SMExecute()
                 if (core_config->BreathMode == M_BREATH_ASSISTED) {
                     if (callback_EndCycle)
                         callback_EndCycle();
-                   
+		    MVMCore::EndCycle_Event();
+		    
                     MVM_HAL->SetOutputValve(true);
  
                     sys_c->dbg_trigger = 0;
@@ -156,6 +159,8 @@ void MVM_StateMachine::SMExecute()
 
                         if (callback_NewCycle)
                             callback_NewCycle();
+			MVMCore::NewCycle_Event();
+			
                         //PRES_SENS_CT[2].ZERO += dt_veturi_100ms;
 
                         //StatEndCycle();
@@ -216,6 +221,7 @@ void MVM_StateMachine::SMExecute()
 
                 if (callback_Exhale)
                     callback_Exhale();
+		MVMCore::Exhale_Event();
 
                 //StatPhaseExpire();
 
@@ -245,6 +251,8 @@ void MVM_StateMachine::SMExecute()
             if (core_config->pause_exhale == false) {
                 if (callback_EndCycle)
                     callback_EndCycle();
+		MVMCore::EndCycle_Event();
+
                 //StatEndCycle();
                 MVM_HAL->SetOutputValve(false);
                 mvm_sm = FR_OPEN_INVALVE;
@@ -264,6 +272,8 @@ void MVM_StateMachine::SMExecute()
                         //StatEndCycle();
                         if (callback_EndCycle)
                             callback_EndCycle();
+			MVMCore::EndCycle_Event();
+
                         MVM_HAL->SetOutputValve(false);
                         mvm_sm = FR_OPEN_INVALVE;
                     }
@@ -305,7 +315,8 @@ void MVM_StateMachine::SMExecute()
             
             if (callback_Exhale)
                 callback_Exhale();
-
+	    MVMCore::Exhale_Event();
+	    
             MVM_HAL->SetInputValve(core_config->leak_compensation);
             MVM_HAL->SetOutputValve(true);
             mvm_sm = AST_DEADTIME;
