@@ -17,6 +17,7 @@ CircularBuffer::CircularBuffer(int32_t size)
 	_size = size;
 	buffer = NULL;
 	buffer = new float [size] ;
+	malloc();
 	for (int i = 0;i < size;i++)
 		buffer[i] = 0;
 }

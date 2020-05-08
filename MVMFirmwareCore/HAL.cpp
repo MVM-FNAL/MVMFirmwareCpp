@@ -40,6 +40,7 @@ void HAL::Init()
 	MEM_FlowIn = new CircularBuffer(4);
 	MEM_FlowVenturi = new CircularBuffer(4);
 	MEM_PVenturi = new CircularBuffer(8);
+	CircularBuffer::CircularBuffer();
 
 	cycle_PLoop_LT = hwi.GetMillis();
 	cycle_PPatient_LT = hwi.GetMillis();

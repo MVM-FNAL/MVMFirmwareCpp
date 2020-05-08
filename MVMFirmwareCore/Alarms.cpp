@@ -29,6 +29,7 @@ void AlarmClass::Init(HAL* hal, t_SystemStatus* sys_c)
     //Create two circular buffer to store the dP on Valve and Patient
     CycleCyclePLoop = new CircularBuffer(5);
     CycleCyclePPatient = new CircularBuffer(5);
+    CircularBuffer::CircularBuffer();
 }
 
 

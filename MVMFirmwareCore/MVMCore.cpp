@@ -32,6 +32,7 @@ void MVMCore::Init()
 	//MVM_SM.addHandler_EndCycle(std::bind(&MVMCore::EndCycle_Event, this));
 
 	MEM_Ppatient_LP = new CircularBuffer(10);
+	CircularBuffer::CircularBuffer();
 	
 	old_delta_ppatient = 0;
 	sys_s.pPatient = 0;

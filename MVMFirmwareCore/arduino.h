@@ -7,6 +7,7 @@ struct Serial {
 };
 void digitalWrite();
 void ledcWrite();
+vod malloc(); // memory allocation
 #else
 #include <Arduino.h>
 #endif
