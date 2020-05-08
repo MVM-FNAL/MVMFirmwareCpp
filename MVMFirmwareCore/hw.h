@@ -12,6 +12,11 @@
 #include "generic_definitions.h"
 #include <functional>
 
+#ifdef DOXYGEN
+
+typedef HW_V4 HW;
+
+#else
 
 class HW {
 public:
@@ -43,6 +48,7 @@ private:
 
 };
 
+#endif
 #endif
 
 //                  #     # ### 
