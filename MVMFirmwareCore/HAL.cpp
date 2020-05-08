@@ -113,6 +113,7 @@ void HAL::Tick()
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Ploop: " + String(Ploop));
 				if (callback_ploop)
 					callback_ploop();
+				MVMCore::PLoop_Event();
 			}
 		}
 		else if (drv_PPatient.asyncGetResult(&ppatient_row, &Tpatient))
@@ -125,6 +126,7 @@ void HAL::Tick()
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - PPatient: " + String(Ppatient));
 				if (callback_ppatient)
 					callback_ppatient();
+				MVMCore::PPatient_Event();
 			}
 		}
 		else if (drv_PVenturi.asyncGetResult(&Pventuri, &Tventuri))
@@ -137,6 +139,7 @@ void HAL::Tick()
 				dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - PVenturi: " + String(Pventuri) + " - FlowVenturi: " + String(FlowVenturi));
 				if (callback_venturi)
 					callback_venturi();
+				MVMCore::FlowVenturi_Event();
 			}
 		}
 		else if (drv_ADC0.asyncGetResult(&ADC_LastResult))
@@ -265,6 +268,7 @@ void HAL::Tick()
 					dbg.DbgPrint(DBG_CODE, DBG_VALUE, String((int32_t)hwi.GetMillis()) + " - Flow: " + String(FlowIn));
 					if (callback_flowsens)
 						callback_flowsens();
+					MVMCore::FlowIn_Event();
 				}
 				i2c_scheduler = 6;
 				break;
@@ -485,6 +489,7 @@ void HAL::TriggerAlarm(t_ALARM alarm_code)
 {
 	if (callback_alarm)
 		callback_alarm(alarm_code);
+	MVMCore::HardwareAlarm_Event();
 }
 
 float HAL::GetGasTemperature()

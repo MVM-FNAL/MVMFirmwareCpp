@@ -428,6 +428,8 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 		callback_AfterConfigurationSet();
 	}
 
+	MVMCore::ConfigurationChanged_Event();
+
 
     return bres;
 }
