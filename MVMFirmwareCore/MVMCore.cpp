@@ -6,7 +6,9 @@
 
 #include "MVMCore.h"
 #include <functional>
-using namespace std::placeholders; 
+#ifndef DOXYGEN
+//using namespace std::placeholders;
+#endif
 
 void MVMCore::Init()
 {
