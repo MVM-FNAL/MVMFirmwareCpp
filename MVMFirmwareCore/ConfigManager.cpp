@@ -343,6 +343,7 @@ bool ConfigManagerClass::SetParameter(String p, String v)
         float numberValue = v.toFloat();
         bool enable = numberValue < 1 ? false:true;
         ((MVMCore*)core)->FlushPipes(enable, numberValue);
+        MVMCore.FlushPipes(enable, numberValue);
         bres = true;
     }
 
@@ -386,7 +387,8 @@ bool ConfigManagerClass::SetParameter(String p, String v)
 	if (strPatam == "venturi_coefficient_0") {
         v.replace("\"", "");
 		float numberValue = v.toFloat();
-        ((MVMCore*)core)->VenturiSetCoefficient(0, numberValue);
+		((MVMCore*)core)->VenturiSetCoefficient(0, numberValue);
+		MVMCore::VenturiSetCoefficient(0, numberValue);
 		bres = true;
 	}
 
@@ -668,6 +670,7 @@ String ConfigManagerClass::GetParameter(String p)
         float zeros[4];
         int count=4;
         ((MVMCore*)core)->ZeroSensors(zeros,&count);
+        MVMCore.ZeroSensors(zeros,&count);
         String outval ="valore=";
         for (int i = 0; i < count; i++)
         {
@@ -682,6 +685,7 @@ String ConfigManagerClass::GetParameter(String p)
     //calibrare o2 sensore to AIR
     if (strPatam == "calib_o2") {
         ((MVMCore*)core)->CalibrateOxygenSensor();
+        MVMCore.CalibrateOxygenSensor();
         return "valore=OK";
     }
 
@@ -740,6 +744,7 @@ String ConfigManagerClass::GetParameter(String p)
         core_config.run = false;
         Alarms->DisableAllAlarms(true);
         ((MVMCore*)core)->DOVenturiMeterScan();
+        MVMCore.DOVenturiMeterScan();
         Alarms->DisableAllAlarms(false);
         return  "valore=OK";
     }
@@ -749,6 +754,7 @@ String ConfigManagerClass::GetParameter(String p)
         core_config.run = false;
         Alarms->DisableAllAlarms(true);
         ((MVMCore*)core)->DOValveScan();
+        MVMCore.DOValveScan();
          Alarms->DisableAllAlarms(false);
         return  "valore=OK";
     }
@@ -757,7 +763,8 @@ String ConfigManagerClass::GetParameter(String p)
 	if (strPatam == "leakage_test") {
         core_config.run = false;
         Alarms->DisableAllAlarms(true);
-		((MVMCore*)core)->LEAKAGETest();
+	((MVMCore*)core)->LEAKAGETest();
+	MVMCore.LEAKAGETest();
         Alarms->DisableAllAlarms(false);
         return  "valore=OK";
 	}
